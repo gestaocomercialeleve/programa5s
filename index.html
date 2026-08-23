@@ -669,6 +669,7 @@ body.printing-form .topnav{display:none!important;}
     <p>Gerencie e consulte todas as auditorias 5S</p>
   </div>
   <div class="dash-main">
+    <div id="sync-badge-audits" class="sync-badge"></div>
     <div class="list-toolbar">
       <input class="search-input" id="searchInput" placeholder="🔍 Buscar por setor, auditor..." oninput="renderList()">
       <select class="filter-select" id="filterSector" onchange="renderList()">
@@ -1211,7 +1212,6 @@ try {
   console.error('localStorage indisponível (modo privado ou bloqueado pelo navegador).', err);
 }
 
-const isFirstEverRunDB = !isKeyEverSet('auditorias5s');
 let DB = safeLoad('auditorias5s', []);
 if (!Array.isArray(DB)) DB = [];
 let editingId = null;
@@ -1327,6 +1327,52 @@ function saveDB() {
     console.error('Erro ao salvar no localStorage:', err);
     return false;
   }
+}
+
+// ===================== AUDITORIAS (Supabase + fallback local) =====================
+// Tabela esperada no Supabase: "auditorias" com as colunas
+// id, data, setor, auditor, observacoes, itens (jsonb), fotos (jsonb),
+// modelo_id, modelo_nome. Se a tabela ainda não existir, o app continua
+// funcionando normalmente em modo local (com aviso na tela de Auditorias).
+async function loadAuditsFromSupabase() {
+  if (!supabaseClient) { setSyncBadge('audits', false); return; }
+  try {
+    const { data, error } = await supabaseClient.from('auditorias').select('*').order('data', { ascending: false });
+    if (error) throw error;
+    const mapRow = r => ({
+      id: r.id, date: r.data || '', sector: r.setor || '', auditor: r.auditor || '',
+      obs: r.observacoes || '', rows: Array.isArray(r.itens) ? r.itens : [],
+      photos: Array.isArray(r.fotos) ? r.fotos : [], templateId: r.modelo_id || null, templateName: r.modelo_nome || '',
+    });
+    const remote = (data || []).map(mapRow);
+    // Preserva auditorias criadas/editadas neste navegador que ainda não foram
+    // sincronizadas com o Supabase (mesma proteção já usada em Setores/Auditores).
+    let pendingLocal = DB.filter(a => a._localOnly && !remote.some(r => r.id === a.id));
+    if (pendingLocal.length) {
+      const stillPending = [];
+      for (const a of pendingLocal) {
+        try {
+          const { data: inserted, error: insErr } = await supabaseClient.from('auditorias').insert([{
+            data: a.date, setor: a.sector, auditor: a.auditor, observacoes: a.obs,
+            itens: a.rows, fotos: a.photos, modelo_id: a.templateId, modelo_nome: a.templateName,
+          }]).select();
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          remote.push(mapRow(inserted[0]));
+        } catch (e) {
+          stillPending.push(a);
+        }
+      }
+      pendingLocal = stillPending;
+    }
+    DB = [...remote, ...pendingLocal];
+    saveDB();
+    setSyncBadge('audits', pendingLocal.length ? 'partial' : true);
+  } catch (err) {
+    console.error('Erro ao carregar auditorias do Supabase (usando cópia local):', err);
+    setSyncBadge('audits', false);
+  }
+  if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
+  else if (document.getElementById('view-list').classList.contains('active')) renderList();
 }
 
 function saveTemplates() {
@@ -2139,6 +2185,7 @@ async function loadSectorsFromSupabase() {
 function retryPendingSync(kind) {
   if (kind === 'sectors') { showToast('🔄 Sincronizando setores...'); loadSectorsFromSupabase(); }
   else if (kind === 'auditors') { showToast('🔄 Sincronizando auditores...'); loadAuditorsFromSupabase(); }
+  else if (kind === 'audits') { showToast('🔄 Sincronizando auditorias...'); loadAuditsFromSupabase(); }
 }
 
 function renderSectors() {
@@ -2576,6 +2623,7 @@ function showApp(userLabel) {
   document.getElementById('sidebarUser').textContent = userLabel || 'Usuário';
   loadSectorsFromSupabase();
   loadAuditorsFromSupabase();
+  loadAuditsFromSupabase();
   checkMeetingAlerts();
 }
 function showLogin() {
@@ -3050,7 +3098,7 @@ function buildTableHTML(list, withDelete = false) {
     const tplName = a.templateName || '5S - Padrão';
     return `<tr>
       <td>${dateStr}</td>
-      <td><strong>${a.sector}</strong><div style="font-size:10px;color:var(--gray-400);font-weight:600;text-transform:uppercase;margin-top:2px;">${tplName}</div></td>
+      <td><strong>${a.sector}</strong><div style="font-size:10px;color:var(--gray-400);font-weight:600;text-transform:uppercase;margin-top:2px;">${tplName}${a._localOnly ? ' · <span style="color:var(--red);">⚠️ não sincronizado</span>' : ''}</div></td>
       <td>${a.auditor || '—'}</td>
       <td>${tot} itens</td>
       <td class="score-pill ${scoreClass}">${pct}%</td>
@@ -3353,7 +3401,7 @@ function deleteModalPhoto(id) {
   renderModalRows();
 }
 
-function saveAudit() {
+async function saveAudit() {
   const date = document.getElementById('fDate').value;
   const sector = document.getElementById('fSector').value.trim();
   const auditor = document.getElementById('fAuditor').value.trim();
@@ -3366,18 +3414,48 @@ function saveAudit() {
     if (ta) r.text = ta.value;
     r.date = dateVal;
   });
-  // Keep a snapshot so we can roll back if saving fails (e.g. storage limit reached)
+  const tpl = TEMPLATES.find(t => t.id === selectedTemplateId);
+  const editingExisting = editingId ? DB.find(x => x.id === editingId) : null;
+  // Um registro "não sincronizado" tem um id gerado localmente que não existe de
+  // verdade no Supabase — tentar um UPDATE nele não daria erro (0 linhas afetadas),
+  // então tratamos esse caso como se fosse uma inserção nova.
+  const isRealRemoteEdit = editingId && editingExisting && !editingExisting._localOnly;
+
+  if (supabaseClient) {
+    const payload = {
+      data: date, setor: sector, auditor, observacoes: obs,
+      itens: modalRows, fotos: modalPhotos,
+      modelo_id: selectedTemplateId || null, modelo_nome: tpl ? tpl.name : '',
+    };
+    try {
+      if (isRealRemoteEdit) {
+        const { data: updated, error } = await supabaseClient.from('auditorias').update(payload).eq('id', editingId).select();
+        if (error) throw error;
+        if (!updated || !updated.length) throw new Error('Registro não encontrado no Supabase (id local desatualizado).');
+      } else {
+        const { error } = await supabaseClient.from('auditorias').insert([payload]);
+        if (error) throw error;
+      }
+      if (editingExisting && editingExisting._localOnly) { DB = DB.filter(x => x.id !== editingId); saveDB(); }
+      showToast(editingId ? '✅ Auditoria atualizada no Supabase!' : '✅ Auditoria salva no Supabase!');
+      closeModal();
+      await loadAuditsFromSupabase();
+      return;
+    } catch (err) {
+      console.error('Erro ao salvar auditoria no Supabase:', err);
+      // segue para o fallback local abaixo
+    }
+  }
+
+  // Fallback local: Supabase indisponível ou a gravação falhou.
+  // Snapshot para poder reverter se o armazenamento local estiver cheio.
   const previousDB = DB.map(x => x);
-  let newId = null;
   if (editingId) {
     const idx = DB.findIndex(x => x.id === editingId);
-    if (idx !== -1) {
-      DB[idx] = { ...DB[idx], date, sector, auditor, obs, rows: modalRows, photos: modalPhotos };
-    }
+    if (idx !== -1) DB[idx] = { ...DB[idx], date, sector, auditor, obs, rows: modalRows, photos: modalPhotos, _localOnly: true };
   } else {
-    newId = 'a' + Date.now();
-    const tpl = TEMPLATES.find(t => t.id === selectedTemplateId);
-    DB.push({ id: newId, date, sector, auditor, obs, rows: modalRows, photos: modalPhotos, templateId: selectedTemplateId || null, templateName: tpl ? tpl.name : '' });
+    const newId = 'a' + Date.now();
+    DB.push({ id: newId, date, sector, auditor, obs, rows: modalRows, photos: modalPhotos, templateId: selectedTemplateId || null, templateName: tpl ? tpl.name : '', _localOnly: true });
   }
   const ok = saveDB();
   if (!ok) {
@@ -3385,7 +3463,8 @@ function saveAudit() {
     showToast('❌ Não foi possível salvar: espaço de armazenamento cheio. Remova algumas fotos e tente novamente.');
     return;
   }
-  showToast(editingId ? '✅ Auditoria atualizada!' : '✅ Auditoria salva!');
+  if (supabaseClient) setSyncBadge('audits', 'partial');
+  showToast(supabaseClient ? '⚠️ Não foi possível gravar no Supabase — salvo apenas localmente. Vamos tentar sincronizar automaticamente mais tarde.' : (editingId ? '✅ Auditoria atualizada!' : '✅ Auditoria salva!'));
   closeModal();
   if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
   else if (document.getElementById('view-list').classList.contains('active')) renderList();
@@ -3396,6 +3475,18 @@ async function deleteAudit(id, e) {
   e.stopPropagation();
   const ok = await showConfirm('Remover esta auditoria?');
   if (!ok) return;
+  const existing = DB.find(x => x.id === id);
+  if (supabaseClient && !(existing && existing._localOnly)) {
+    try {
+      const { error } = await supabaseClient.from('auditorias').delete().eq('id', id);
+      if (error) throw error;
+      await loadAuditsFromSupabase();
+      showToast('🗑 Auditoria removida');
+      return;
+    } catch (err) {
+      console.error('Erro ao remover auditoria no Supabase:', err);
+    }
+  }
   DB = DB.filter(x => x.id !== id);
   saveDB();
   renderList();
@@ -3421,8 +3512,12 @@ function importJSON(e) {
       if (!Array.isArray(data)) throw new Error();
       const ok = await showConfirm(`Importar ${data.length} auditoria(s)? Isso irá mesclar com os dados existentes.`);
       if (ok) {
-        data.forEach(a => { if (!DB.find(x => x.id === a.id)) DB.push(a); });
-        if (saveDB()) { renderList(); showToast('✅ Importado com sucesso!'); }
+        data.forEach(a => { if (!DB.find(x => x.id === a.id)) DB.push({ ...a, _localOnly: true }); });
+        if (saveDB()) {
+          renderList();
+          showToast('✅ Importado! Sincronizando com o Supabase...');
+          if (supabaseClient) loadAuditsFromSupabase();
+        }
         else showToast('❌ Espaço de armazenamento cheio. Não foi possível importar tudo.');
       }
     } catch { showToast('❌ Arquivo inválido'); }
@@ -3458,57 +3553,10 @@ document.getElementById('confirmCancelBtn').addEventListener('click', () => {
 });
 
 // ===================== INIT =====================
-// Seed com dados de exemplo (fictícios) apenas na primeiríssima vez que o app
-// é aberto neste navegador. Se o usuário já usou o sistema antes — mesmo que
-// tenha apagado todas as auditorias — os dados de exemplo NÃO voltam a aparecer.
-if (DB.length === 0 && isFirstEverRunDB) {
-  const today = new Date();
-  const fmt = d => d.toISOString().split('T')[0];
-  const ago = n => { const d = new Date(today); d.setDate(d.getDate() - n); return fmt(d); };
-  DB = [
-    { id:'a1', date: ago(60), sector:'Produção', auditor:'Carlos Lima', obs:'Auditoria inicial do setor', rows:[
-      {id:1,text:'Materiais desnecessários foram identificados e eliminados (Seiri)',date:'01/04',ok:true,nc:false},
-      {id:2,text:'Itens estão organizados e com local definido (Seiton)',date:'01/04',ok:false,nc:true},
-      {id:3,text:'Ambiente limpo e sem resíduos visíveis (Seisou)',date:'01/04',ok:false,nc:true},
-      {id:4,text:'Equipamentos e EPIs em bom estado de conservação',date:'01/04',ok:true,nc:false},
-      {id:5,text:'Sinalização e identificação dos locais está correta',date:'01/04',ok:true,nc:false},
-      {id:6,text:'Procedimentos e instruções estão visíveis e atualizados',date:'01/04',ok:false,nc:true},
-      {id:7,text:'Colaboradores seguem os padrões estabelecidos (Shitsuke)',date:'01/04',ok:true,nc:false},
-      {id:8,text:'Não há itens bloqueando saídas de emergência',date:'01/04',ok:true,nc:false},
-    ], photos:[], templateId:'tpl1', templateName:'5S - Padrão'},
-    { id:'a2', date: ago(30), sector:'Produção', auditor:'Carlos Lima', obs:'Seguimento após ações corretivas', rows:[
-      {id:1,text:'Materiais desnecessários foram identificados e eliminados (Seiri)',date:'01/05',ok:true,nc:false},
-      {id:2,text:'Itens estão organizados e com local definido (Seiton)',date:'01/05',ok:true,nc:false},
-      {id:3,text:'Ambiente limpo e sem resíduos visíveis (Seisou)',date:'01/05',ok:true,nc:false},
-      {id:4,text:'Equipamentos e EPIs em bom estado de conservação',date:'01/05',ok:true,nc:false},
-      {id:5,text:'Sinalização e identificação dos locais está correta',date:'01/05',ok:true,nc:false},
-      {id:6,text:'Procedimentos e instruções estão visíveis e atualizados',date:'01/05',ok:true,nc:false},
-      {id:7,text:'Colaboradores seguem os padrões estabelecidos (Shitsuke)',date:'01/05',ok:false,nc:true},
-      {id:8,text:'Não há itens bloqueando saídas de emergência',date:'01/05',ok:true,nc:false},
-    ], photos:[], templateId:'tpl1', templateName:'5S - Padrão'},
-    { id:'a3', date: ago(45), sector:'Almoxarifado', auditor:'Ana Souza', obs:'', rows:[
-      {id:1,text:'Materiais desnecessários foram identificados e eliminados (Seiri)',date:'15/04',ok:false,nc:true},
-      {id:2,text:'Itens estão organizados e com local definido (Seiton)',date:'15/04',ok:false,nc:true},
-      {id:3,text:'Ambiente limpo e sem resíduos visíveis (Seisou)',date:'15/04',ok:true,nc:false},
-      {id:4,text:'Equipamentos e EPIs em bom estado de conservação',date:'15/04',ok:true,nc:false},
-      {id:5,text:'Sinalização e identificação dos locais está correta',date:'15/04',ok:false,nc:true},
-      {id:6,text:'Procedimentos e instruções estão visíveis e atualizados',date:'15/04',ok:true,nc:false},
-      {id:7,text:'Colaboradores seguem os padrões estabelecidos (Shitsuke)',date:'15/04',ok:true,nc:false},
-      {id:8,text:'Não há itens bloqueando saídas de emergência',date:'15/04',ok:true,nc:false},
-    ], photos:[], templateId:'tpl1', templateName:'5S - Padrão'},
-    { id:'a4', date: ago(10), sector:'Manutenção', auditor:'João Ferreira', obs:'Primeira auditoria do setor', rows:[
-      {id:1,text:'Materiais desnecessários foram identificados e eliminados (Seiri)',date:'05/06',ok:true,nc:false},
-      {id:2,text:'Itens estão organizados e com local definido (Seiton)',date:'05/06',ok:true,nc:false},
-      {id:3,text:'Ambiente limpo e sem resíduos visíveis (Seisou)',date:'05/06',ok:true,nc:false},
-      {id:4,text:'Equipamentos e EPIs em bom estado de conservação',date:'05/06',ok:true,nc:false},
-      {id:5,text:'Sinalização e identificação dos locais está correta',date:'05/06',ok:true,nc:false},
-      {id:6,text:'Procedimentos e instruções estão visíveis e atualizados',date:'05/06',ok:true,nc:false},
-      {id:7,text:'Colaboradores seguem os padrões estabelecidos (Shitsuke)',date:'05/06',ok:true,nc:false},
-      {id:8,text:'Não há itens bloqueando saídas de emergência',date:'05/06',ok:true,nc:false},
-    ], photos:[], templateId:'tpl1', templateName:'5S - Padrão'},
-  ];
-  saveDB();
-}
+// Nenhum dado fictício/de exemplo é gerado automaticamente. As auditorias vêm
+// exclusivamente do Supabase (com fallback local apenas se o Supabase estiver
+// indisponível ou a gravação falhar — nesse caso ficam marcadas como
+// "não sincronizado" até serem enviadas de verdade, nunca como dado inventado).
 
 renderDashboard();
 if (!storageAvailable) {
