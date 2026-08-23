@@ -353,7 +353,10 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .sync-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-400);margin-bottom:14px;padding:6px 12px;border-radius:20px;background:var(--gray-100);}
 .sync-badge.online{color:var(--green);background:var(--green-light);}
 .sync-badge.offline{color:var(--yellow);background:var(--yellow-light);}
+.sync-badge.partial{color:var(--red);background:var(--red-light);}
 .sync-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.sync-badge .retry-btn{border:none;background:rgba(0,0,0,.08);color:inherit;font-weight:700;font-size:11px;padding:2px 8px;border-radius:10px;cursor:pointer;margin-left:2px;}
+.sync-badge .retry-btn:hover{background:rgba(0,0,0,.16);}
 .entity-card{background:white;border-radius:12px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--blue);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
 .entity-card .entity-info h4{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--gray-900);text-transform:uppercase;letter-spacing:.5px;}
 .entity-card .entity-info .entity-meta{font-size:12.5px;color:var(--gray-600);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap;}
@@ -1192,6 +1195,12 @@ function safeLoad(key, fallback) {
     return fallback;
   }
 }
+// Diferencia "nunca usei o app neste navegador" de "usei e apaguei tudo".
+// Isso evita que dados de exemplo (fictícios) ou modelos padrão voltem a
+// aparecer sozinhos depois que o usuário os apagou de propósito.
+function isKeyEverSet(key) {
+  try { return localStorage.getItem(key) !== null; } catch (err) { return false; }
+}
 let storageAvailable = true;
 try {
   const testKey = '__auditorias5s_test__';
@@ -1202,6 +1211,7 @@ try {
   console.error('localStorage indisponível (modo privado ou bloqueado pelo navegador).', err);
 }
 
+const isFirstEverRunDB = !isKeyEverSet('auditorias5s');
 let DB = safeLoad('auditorias5s', []);
 if (!Array.isArray(DB)) DB = [];
 let editingId = null;
@@ -1285,17 +1295,21 @@ function getRowSenso(row) {
   return (row && (row.senso || inferSenso(row.text))) || '';
 }
 
+const isFirstEverRunTemplates = !isKeyEverSet('auditorias5s_templates');
 let TEMPLATES = safeLoad('auditorias5s_templates', null);
 if (!Array.isArray(TEMPLATES) || TEMPLATES.length === 0) {
   TEMPLATES = [{ id: 'tpl1', name: '5S - Padrão', description: 'Checklist padrão de auditoria 5S', criteria: DEFAULT_CRITERIA.map(normalizeCriterion) }];
 }
-// Garante que os modelos pré-configurados de Escritório e Produção Industrial existam,
-// sem duplicar nem sobrescrever modelos que o usuário já tenha customizado.
-if (!TEMPLATES.some(t => t.id === 'tpl_office')) {
-  TEMPLATES.push({ id: 'tpl_office', name: '5S - Escritório', description: 'Checklist de auditoria 5S para áreas administrativas', criteria: OFFICE_5S_CRITERIA.map(normalizeCriterion) });
-}
-if (!TEMPLATES.some(t => t.id === 'tpl_industrial')) {
-  TEMPLATES.push({ id: 'tpl_industrial', name: '5S - Produção Industrial', description: 'Checklist de auditoria 5S para chão de fábrica e linhas de produção', criteria: INDUSTRIAL_5S_CRITERIA.map(normalizeCriterion) });
+// Garante que os modelos pré-configurados de Escritório e Produção Industrial existam
+// somente na primeira vez que o app é aberto. Se o usuário apagou algum deles de
+// propósito depois, ele não deve voltar a aparecer sozinho.
+if (isFirstEverRunTemplates) {
+  if (!TEMPLATES.some(t => t.id === 'tpl_office')) {
+    TEMPLATES.push({ id: 'tpl_office', name: '5S - Escritório', description: 'Checklist de auditoria 5S para áreas administrativas', criteria: OFFICE_5S_CRITERIA.map(normalizeCriterion) });
+  }
+  if (!TEMPLATES.some(t => t.id === 'tpl_industrial')) {
+    TEMPLATES.push({ id: 'tpl_industrial', name: '5S - Produção Industrial', description: 'Checklist de auditoria 5S para chão de fábrica e linhas de produção', criteria: INDUSTRIAL_5S_CRITERIA.map(normalizeCriterion) });
+  }
 }
 // Compatibilidade: normaliza modelos salvos no formato antigo (critério = string simples)
 TEMPLATES.forEach(t => { if (Array.isArray(t.criteria)) t.criteria = t.criteria.map(normalizeCriterion); });
@@ -2051,12 +2065,16 @@ function saveSectorsLocal() {
 }
 
 function setSyncBadge(kind, state) {
-  // state: true = online (Supabase), false = offline/local, null = checking
+  // state: true = online (Supabase), false = offline/local, 'partial' = alguns
+  // registros só existem localmente (não foram sincronizados), null = checking
   const el = document.getElementById('sync-badge-' + kind);
   if (!el) return;
   if (state === true) {
     el.className = 'sync-badge online';
     el.innerHTML = '<span class="dot"></span> Sincronizado com Supabase';
+  } else if (state === 'partial') {
+    el.className = 'sync-badge partial';
+    el.innerHTML = '<span class="dot"></span> Alguns itens ainda não foram sincronizados com o Supabase <button class="retry-btn" onclick="retryPendingSync(\'' + kind + '\')">🔄 Tentar novamente</button>';
   } else if (state === false) {
     el.className = 'sync-badge offline';
     el.innerHTML = '<span class="dot"></span> Modo local (Supabase indisponível) — os dados ficam salvos apenas neste navegador';
@@ -2078,15 +2096,49 @@ async function loadSectorsFromSupabase() {
   try {
     const { data, error } = await supabaseClient.from('setores').select('*').order('nome', { ascending: true });
     if (error) throw error;
-    SECTORS = (data || []).map(r => ({ id: r.id, name: r.nome || '', responsible: r.responsavel || '', location: r.localizacao || '', description: r.descricao || '' }));
+    const remote = (data || []).map(r => ({ id: r.id, name: r.nome || '', responsible: r.responsavel || '', location: r.localizacao || '', description: r.descricao || '' }));
+    // Preserva setores criados/editados neste navegador que ainda não foram
+    // sincronizados com o Supabase — sem isso, um cadastro feito enquanto a
+    // gravação remota falha (ex.: permissão/RLS) "some" na próxima atualização,
+    // porque a leitura (select) funciona mas não traz esse registro de volta.
+    let pendingLocal = SECTORS.filter(s => s._localOnly && !remote.some(r => r.id === s.id));
+    // Tenta sincronizar automaticamente cada pendência; o que continuar
+    // falhando permanece salvo localmente e pode ser tentado de novo depois.
+    if (pendingLocal.length) {
+      const stillPending = [];
+      for (const s of pendingLocal) {
+        try {
+          const { data: inserted, error: insErr } = await supabaseClient
+            .from('setores')
+            .insert([{ nome: s.name, responsavel: s.responsible, localizacao: s.location, descricao: s.description }])
+            .select();
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          const r = inserted[0];
+          remote.push({ id: r.id, name: r.nome || '', responsible: r.responsavel || '', location: r.localizacao || '', description: r.descricao || '' });
+        } catch (e) {
+          stillPending.push(s);
+        }
+      }
+      pendingLocal = stillPending;
+    }
+    SECTORS = [...remote, ...pendingLocal];
     saveSectorsLocal();
-    setSyncBadge('sectors', true);
+    if (pendingLocal.length) {
+      setSyncBadge('sectors', 'partial');
+    } else {
+      setSyncBadge('sectors', true);
+    }
   } catch (err) {
     console.error('Erro ao carregar setores do Supabase (usando cópia local):', err);
     setSyncBadge('sectors', false);
   }
   renderSectors();
   populateSectorsDatalist();
+}
+
+function retryPendingSync(kind) {
+  if (kind === 'sectors') { showToast('🔄 Sincronizando setores...'); loadSectorsFromSupabase(); }
+  else if (kind === 'auditors') { showToast('🔄 Sincronizando auditores...'); loadAuditorsFromSupabase(); }
 }
 
 function renderSectors() {
@@ -2099,7 +2151,7 @@ function renderSectors() {
   cont.innerHTML = SECTORS.slice().sort((a, b) => a.name.localeCompare(b.name)).map(s => `
     <div class="entity-card">
       <div class="entity-info">
-        <h4>${s.name}</h4>
+        <h4>${s.name}${s._localOnly ? ' <span title="Ainda não sincronizado com o Supabase" style="font-size:11px;font-weight:700;color:var(--red);">⚠️ não sincronizado</span>' : ''}</h4>
         <div class="entity-meta">
           ${s.responsible ? `<span>👤 ${s.responsible}</span>` : ''}
           ${s.location ? `<span>📍 ${s.location}</span>` : ''}
@@ -2145,16 +2197,23 @@ async function saveSector() {
     localizacao: document.getElementById('secLocation').value.trim(),
     descricao: document.getElementById('secDescription').value.trim()
   };
+  const editingExisting = editingSectorId ? SECTORS.find(x => x.id === editingSectorId) : null;
+  // Um registro "não sincronizado" tem um id local (ex.: "sec173...") que não existe
+  // de verdade no Supabase — tentar fazer UPDATE nele não daria erro (0 linhas
+  // afetadas), então tratamos esse caso como se fosse uma nova inserção.
+  const isRealRemoteEdit = editingSectorId && editingExisting && !editingExisting._localOnly;
   try {
     if (supabaseClient) {
-      if (editingSectorId) {
-        const { error } = await supabaseClient.from('setores').update(payload).eq('id', editingSectorId);
+      if (isRealRemoteEdit) {
+        const { data: updated, error } = await supabaseClient.from('setores').update(payload).eq('id', editingSectorId).select();
         if (error) throw error;
+        if (!updated || !updated.length) throw new Error('Registro não encontrado no Supabase (id local desatualizado).');
       } else {
         const { error } = await supabaseClient.from('setores').insert([payload]);
         if (error) throw error;
       }
       showToast('✅ Setor salvo no Supabase!');
+      if (editingExisting && editingExisting._localOnly) { SECTORS = SECTORS.filter(x => x.id !== editingSectorId); saveSectorsLocal(); }
       await loadSectorsFromSupabase();
     } else {
       throw new Error('offline');
@@ -2163,12 +2222,13 @@ async function saveSector() {
     if (err && err.message !== 'offline') console.error('Erro ao salvar setor no Supabase:', err);
     if (editingSectorId) {
       const idx = SECTORS.findIndex(x => x.id === editingSectorId);
-      if (idx !== -1) SECTORS[idx] = { ...SECTORS[idx], name: payload.nome, responsible: payload.responsavel, location: payload.localizacao, description: payload.descricao };
+      if (idx !== -1) SECTORS[idx] = { ...SECTORS[idx], name: payload.nome, responsible: payload.responsavel, location: payload.localizacao, description: payload.descricao, _localOnly: true };
     } else {
-      SECTORS.push({ id: 'sec' + Date.now(), name: payload.nome, responsible: payload.responsavel, location: payload.localizacao, description: payload.descricao });
+      SECTORS.push({ id: 'sec' + Date.now(), name: payload.nome, responsible: payload.responsavel, location: payload.localizacao, description: payload.descricao, _localOnly: true });
     }
     saveSectorsLocal();
-    showToast(supabaseClient ? '⚠️ Não foi possível gravar no Supabase — salvo apenas localmente.' : '✅ Setor salvo localmente!');
+    if (supabaseClient) setSyncBadge('sectors', 'partial');
+    showToast(supabaseClient ? '⚠️ Não foi possível gravar no Supabase — salvo apenas localmente. Vamos tentar sincronizar automaticamente mais tarde.' : '✅ Setor salvo localmente!');
     renderSectors();
     populateSectorsDatalist();
   }
@@ -2177,8 +2237,9 @@ async function saveSector() {
 async function deleteSector(id) {
   const ok = await showConfirm('Remover este setor do cadastro?');
   if (!ok) return;
+  const existing = SECTORS.find(x => x.id === id);
   try {
-    if (supabaseClient) {
+    if (supabaseClient && !(existing && existing._localOnly)) {
       const { error } = await supabaseClient.from('setores').delete().eq('id', id);
       if (error) throw error;
       await loadSectorsFromSupabase();
@@ -2216,9 +2277,30 @@ async function loadAuditorsFromSupabase() {
   try {
     const { data, error } = await supabaseClient.from('auditores').select('*').order('nome', { ascending: true });
     if (error) throw error;
-    AUDITORS = (data || []).map(r => ({ id: r.id, name: r.nome || '', role: r.cargo || '', sector: r.setor || '', email: r.email || '', phone: r.telefone || '' }));
+    const remote = (data || []).map(r => ({ id: r.id, name: r.nome || '', role: r.cargo || '', sector: r.setor || '', email: r.email || '', phone: r.telefone || '' }));
+    // Preserva auditores cadastrados/editados neste navegador que ainda não
+    // foram sincronizados com o Supabase (mesmo motivo do fix em Setores).
+    let pendingLocal = AUDITORS.filter(a => a._localOnly && !remote.some(r => r.id === a.id));
+    if (pendingLocal.length) {
+      const stillPending = [];
+      for (const a of pendingLocal) {
+        try {
+          const { data: inserted, error: insErr } = await supabaseClient
+            .from('auditores')
+            .insert([{ nome: a.name, cargo: a.role, setor: a.sector, email: a.email, telefone: a.phone }])
+            .select();
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          const r = inserted[0];
+          remote.push({ id: r.id, name: r.nome || '', role: r.cargo || '', sector: r.setor || '', email: r.email || '', phone: r.telefone || '' });
+        } catch (e) {
+          stillPending.push(a);
+        }
+      }
+      pendingLocal = stillPending;
+    }
+    AUDITORS = [...remote, ...pendingLocal];
     saveAuditorsLocal();
-    setSyncBadge('auditors', true);
+    setSyncBadge('auditors', pendingLocal.length ? 'partial' : true);
   } catch (err) {
     console.error('Erro ao carregar auditores do Supabase (usando cópia local):', err);
     setSyncBadge('auditors', false);
@@ -2237,7 +2319,7 @@ function renderAuditors() {
   cont.innerHTML = AUDITORS.slice().sort((a, b) => a.name.localeCompare(b.name)).map(a => `
     <div class="entity-card">
       <div class="entity-info">
-        <h4>${a.name}</h4>
+        <h4>${a.name}${a._localOnly ? ' <span title="Ainda não sincronizado com o Supabase" style="font-size:11px;font-weight:700;color:var(--red);">⚠️ não sincronizado</span>' : ''}</h4>
         <div class="entity-meta">
           ${a.role ? `<span>💼 ${a.role}</span>` : ''}
           ${a.sector ? `<span>🏢 ${a.sector}</span>` : ''}
@@ -2287,16 +2369,20 @@ async function saveAuditor() {
     email: document.getElementById('audEmail').value.trim(),
     telefone: document.getElementById('audPhone').value.trim()
   };
+  const editingExisting = editingAuditorId ? AUDITORS.find(x => x.id === editingAuditorId) : null;
+  const isRealRemoteEdit = editingAuditorId && editingExisting && !editingExisting._localOnly;
   try {
     if (supabaseClient) {
-      if (editingAuditorId) {
-        const { error } = await supabaseClient.from('auditores').update(payload).eq('id', editingAuditorId);
+      if (isRealRemoteEdit) {
+        const { data: updated, error } = await supabaseClient.from('auditores').update(payload).eq('id', editingAuditorId).select();
         if (error) throw error;
+        if (!updated || !updated.length) throw new Error('Registro não encontrado no Supabase (id local desatualizado).');
       } else {
         const { error } = await supabaseClient.from('auditores').insert([payload]);
         if (error) throw error;
       }
       showToast('✅ Auditor salvo no Supabase!');
+      if (editingExisting && editingExisting._localOnly) { AUDITORS = AUDITORS.filter(x => x.id !== editingAuditorId); saveAuditorsLocal(); }
       await loadAuditorsFromSupabase();
     } else {
       throw new Error('offline');
@@ -2305,12 +2391,13 @@ async function saveAuditor() {
     if (err && err.message !== 'offline') console.error('Erro ao salvar auditor no Supabase:', err);
     if (editingAuditorId) {
       const idx = AUDITORS.findIndex(x => x.id === editingAuditorId);
-      if (idx !== -1) AUDITORS[idx] = { ...AUDITORS[idx], name: payload.nome, role: payload.cargo, sector: payload.setor, email: payload.email, phone: payload.telefone };
+      if (idx !== -1) AUDITORS[idx] = { ...AUDITORS[idx], name: payload.nome, role: payload.cargo, sector: payload.setor, email: payload.email, phone: payload.telefone, _localOnly: true };
     } else {
-      AUDITORS.push({ id: 'aud' + Date.now(), name: payload.nome, role: payload.cargo, sector: payload.setor, email: payload.email, phone: payload.telefone });
+      AUDITORS.push({ id: 'aud' + Date.now(), name: payload.nome, role: payload.cargo, sector: payload.setor, email: payload.email, phone: payload.telefone, _localOnly: true });
     }
     saveAuditorsLocal();
-    showToast(supabaseClient ? '⚠️ Não foi possível gravar no Supabase — salvo apenas localmente.' : '✅ Auditor salvo localmente!');
+    if (supabaseClient) setSyncBadge('auditors', 'partial');
+    showToast(supabaseClient ? '⚠️ Não foi possível gravar no Supabase — salvo apenas localmente. Vamos tentar sincronizar automaticamente mais tarde.' : '✅ Auditor salvo localmente!');
     renderAuditors();
     populateAuditorsDatalist();
   }
@@ -2319,8 +2406,9 @@ async function saveAuditor() {
 async function deleteAuditor(id) {
   const ok = await showConfirm('Remover este auditor do cadastro?');
   if (!ok) return;
+  const existing = AUDITORS.find(x => x.id === id);
   try {
-    if (supabaseClient) {
+    if (supabaseClient && !(existing && existing._localOnly)) {
       const { error } = await supabaseClient.from('auditores').delete().eq('id', id);
       if (error) throw error;
       await loadAuditorsFromSupabase();
@@ -3370,8 +3458,10 @@ document.getElementById('confirmCancelBtn').addEventListener('click', () => {
 });
 
 // ===================== INIT =====================
-// Seed with sample data if empty
-if (DB.length === 0) {
+// Seed com dados de exemplo (fictícios) apenas na primeiríssima vez que o app
+// é aberto neste navegador. Se o usuário já usou o sistema antes — mesmo que
+// tenha apagado todas as auditorias — os dados de exemplo NÃO voltam a aparecer.
+if (DB.length === 0 && isFirstEverRunDB) {
   const today = new Date();
   const fmt = d => d.toISOString().split('T')[0];
   const ago = n => { const d = new Date(today); d.setDate(d.getDate() - n); return fmt(d); };
