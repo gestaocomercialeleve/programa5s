@@ -357,6 +357,8 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .sync-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
 .sync-badge .retry-btn{border:none;background:rgba(0,0,0,.08);color:inherit;font-weight:700;font-size:11px;padding:2px 8px;border-radius:10px;cursor:pointer;margin-left:2px;}
 .sync-badge .retry-btn:hover{background:rgba(0,0,0,.16);}
+.sync-badge{flex-wrap:wrap;}
+.sync-badge .sync-error-detail{flex-basis:100%;font-weight:500;font-size:11px;opacity:.9;margin-top:4px;line-height:1.4;}
 .entity-card{background:white;border-radius:12px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--blue);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
 .entity-card .entity-info h4{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--gray-900);text-transform:uppercase;letter-spacing:.5px;}
 .entity-card .entity-info .entity-meta{font-size:12.5px;color:var(--gray-600);margin-top:3px;display:flex;gap:12px;flex-wrap:wrap;}
@@ -1329,6 +1331,19 @@ function saveDB() {
   }
 }
 
+// Guarda o último erro de sincronização de cada tela, para exibir o motivo real
+// da falha em vez de só "não sincronizado" (facilita muito o diagnóstico).
+const lastSyncError = {};
+function describeSupabaseError(err) {
+  if (!err) return '';
+  const parts = [];
+  if (err.code) parts.push('código ' + err.code);
+  if (err.message) parts.push(err.message);
+  if (err.details) parts.push(err.details);
+  if (err.hint) parts.push('Dica: ' + err.hint);
+  return parts.join(' — ') || String(err);
+}
+
 // ===================== AUDITORIAS (Supabase + fallback local) =====================
 // Tabela esperada no Supabase: "auditorias" com as colunas
 // id, data, setor, auditor, observacoes, itens (jsonb), fotos (jsonb),
@@ -1356,9 +1371,11 @@ async function loadAuditsFromSupabase() {
             data: a.date, setor: a.sector, auditor: a.auditor, observacoes: a.obs,
             itens: a.rows, fotos: a.photos, modelo_id: a.templateId, modelo_nome: a.templateName,
           }]).select();
-          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('O Supabase não retornou o registro inserido (possível bloqueio de RLS no SELECT após INSERT).');
           remote.push(mapRow(inserted[0]));
         } catch (e) {
+          console.error('Falha ao sincronizar auditoria de "' + a.sector + '":', e);
+          lastSyncError.audits = describeSupabaseError(e);
           stillPending.push(a);
         }
       }
@@ -1366,9 +1383,11 @@ async function loadAuditsFromSupabase() {
     }
     DB = [...remote, ...pendingLocal];
     saveDB();
+    if (!pendingLocal.length) delete lastSyncError.audits;
     setSyncBadge('audits', pendingLocal.length ? 'partial' : true);
   } catch (err) {
     console.error('Erro ao carregar auditorias do Supabase (usando cópia local):', err);
+    lastSyncError.audits = describeSupabaseError(err);
     setSyncBadge('audits', false);
   }
   if (document.getElementById('view-dashboard').classList.contains('active')) renderDashboard();
@@ -2115,15 +2134,18 @@ function setSyncBadge(kind, state) {
   // registros só existem localmente (não foram sincronizados), null = checking
   const el = document.getElementById('sync-badge-' + kind);
   if (!el) return;
+  const escapeHtml = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   if (state === true) {
     el.className = 'sync-badge online';
     el.innerHTML = '<span class="dot"></span> Sincronizado com Supabase';
   } else if (state === 'partial') {
     el.className = 'sync-badge partial';
-    el.innerHTML = '<span class="dot"></span> Alguns itens ainda não foram sincronizados com o Supabase <button class="retry-btn" onclick="retryPendingSync(\'' + kind + '\')">🔄 Tentar novamente</button>';
+    const reason = lastSyncError[kind] ? '<div class="sync-error-detail">Motivo da falha: ' + escapeHtml(lastSyncError[kind]) + '</div>' : '';
+    el.innerHTML = '<span class="dot"></span> Alguns itens ainda não foram sincronizados com o Supabase <button class="retry-btn" onclick="retryPendingSync(\'' + kind + '\')">🔄 Tentar novamente</button>' + reason;
   } else if (state === false) {
     el.className = 'sync-badge offline';
-    el.innerHTML = '<span class="dot"></span> Modo local (Supabase indisponível) — os dados ficam salvos apenas neste navegador';
+    const reason = lastSyncError[kind] ? '<div class="sync-error-detail">Motivo: ' + escapeHtml(lastSyncError[kind]) + '</div>' : '';
+    el.innerHTML = '<span class="dot"></span> Modo local (Supabase indisponível) — os dados ficam salvos apenas neste navegador' + reason;
   } else {
     el.className = 'sync-badge';
     el.innerHTML = '<span class="dot"></span> Verificando conexão...';
@@ -2158,10 +2180,12 @@ async function loadSectorsFromSupabase() {
             .from('setores')
             .insert([{ nome: s.name, responsavel: s.responsible, localizacao: s.location, descricao: s.description }])
             .select();
-          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('O Supabase não retornou o registro inserido (possível bloqueio de RLS no SELECT após INSERT).');
           const r = inserted[0];
           remote.push({ id: r.id, name: r.nome || '', responsible: r.responsavel || '', location: r.localizacao || '', description: r.descricao || '' });
         } catch (e) {
+          console.error('Falha ao sincronizar setor "' + s.name + '":', e);
+          lastSyncError.sectors = describeSupabaseError(e);
           stillPending.push(s);
         }
       }
@@ -2172,10 +2196,12 @@ async function loadSectorsFromSupabase() {
     if (pendingLocal.length) {
       setSyncBadge('sectors', 'partial');
     } else {
+      delete lastSyncError.sectors;
       setSyncBadge('sectors', true);
     }
   } catch (err) {
     console.error('Erro ao carregar setores do Supabase (usando cópia local):', err);
+    lastSyncError.sectors = describeSupabaseError(err);
     setSyncBadge('sectors', false);
   }
   renderSectors();
@@ -2266,7 +2292,7 @@ async function saveSector() {
       throw new Error('offline');
     }
   } catch (err) {
-    if (err && err.message !== 'offline') console.error('Erro ao salvar setor no Supabase:', err);
+    if (err && err.message !== 'offline') { console.error('Erro ao salvar setor no Supabase:', err); lastSyncError.sectors = describeSupabaseError(err); }
     if (editingSectorId) {
       const idx = SECTORS.findIndex(x => x.id === editingSectorId);
       if (idx !== -1) SECTORS[idx] = { ...SECTORS[idx], name: payload.nome, responsible: payload.responsavel, location: payload.localizacao, description: payload.descricao, _localOnly: true };
@@ -2336,10 +2362,12 @@ async function loadAuditorsFromSupabase() {
             .from('auditores')
             .insert([{ nome: a.name, cargo: a.role, setor: a.sector, email: a.email, telefone: a.phone }])
             .select();
-          if (insErr || !inserted || !inserted.length) throw insErr || new Error('sem retorno');
+          if (insErr || !inserted || !inserted.length) throw insErr || new Error('O Supabase não retornou o registro inserido (possível bloqueio de RLS no SELECT após INSERT).');
           const r = inserted[0];
           remote.push({ id: r.id, name: r.nome || '', role: r.cargo || '', sector: r.setor || '', email: r.email || '', phone: r.telefone || '' });
         } catch (e) {
+          console.error('Falha ao sincronizar auditor "' + a.name + '":', e);
+          lastSyncError.auditors = describeSupabaseError(e);
           stillPending.push(a);
         }
       }
@@ -2347,9 +2375,11 @@ async function loadAuditorsFromSupabase() {
     }
     AUDITORS = [...remote, ...pendingLocal];
     saveAuditorsLocal();
+    if (!pendingLocal.length) delete lastSyncError.auditors;
     setSyncBadge('auditors', pendingLocal.length ? 'partial' : true);
   } catch (err) {
     console.error('Erro ao carregar auditores do Supabase (usando cópia local):', err);
+    lastSyncError.auditors = describeSupabaseError(err);
     setSyncBadge('auditors', false);
   }
   renderAuditors();
@@ -2435,7 +2465,7 @@ async function saveAuditor() {
       throw new Error('offline');
     }
   } catch (err) {
-    if (err && err.message !== 'offline') console.error('Erro ao salvar auditor no Supabase:', err);
+    if (err && err.message !== 'offline') { console.error('Erro ao salvar auditor no Supabase:', err); lastSyncError.auditors = describeSupabaseError(err); }
     if (editingAuditorId) {
       const idx = AUDITORS.findIndex(x => x.id === editingAuditorId);
       if (idx !== -1) AUDITORS[idx] = { ...AUDITORS[idx], name: payload.nome, role: payload.cargo, sector: payload.setor, email: payload.email, phone: payload.telefone, _localOnly: true };
@@ -3443,6 +3473,7 @@ async function saveAudit() {
       return;
     } catch (err) {
       console.error('Erro ao salvar auditoria no Supabase:', err);
+      lastSyncError.audits = describeSupabaseError(err);
       // segue para o fallback local abaixo
     }
   }
