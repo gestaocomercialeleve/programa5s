@@ -66,8 +66,33 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .section-title::after{content:'';flex:1;height:2px;background:var(--gray-200);}
 
 .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:28px;}
+.charts-row.charts-row-even{grid-template-columns:1fr 1fr;}
+.charts-row.charts-row-full{grid-template-columns:1fr;}
+
+/* MENSAGEM MOTIVACIONAL 5S (mentor) */
+.motivation-card{display:flex;align-items:flex-start;gap:16px;background:linear-gradient(135deg,var(--green) 0%,#2FA854 55%,#63C787 100%);border-radius:14px;padding:20px 24px;margin-bottom:22px;color:white;box-shadow:0 4px 14px rgba(27,127,58,.28);}
+.motivation-icon{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.motivation-body{min-width:0;}
+.motivation-label{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.75);margin-bottom:4px;}
+.motivation-text{font-size:15px;font-weight:600;line-height:1.5;font-style:italic;}
+.motivation-author{font-size:12px;color:rgba(255,255,255,.8);margin-top:8px;font-weight:600;}
+@media (max-width:500px){
+  .motivation-card{padding:16px 18px;}
+  .motivation-text{font-size:13.5px;}
+}
 .chart-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);}
 .chart-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--gray-600);margin-bottom:16px;}
+.chart-card .chart-hint{font-size:11.5px;color:var(--gray-400);margin:-10px 0 14px;}
+.rank-list{display:flex;flex-direction:column;gap:10px;}
+.rank-row{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:var(--gray-100);}
+.rank-row.rank-first{background:linear-gradient(90deg,#FEF3C7,var(--gray-100));}
+.rank-pos{width:34px;flex-shrink:0;text-align:center;font-size:18px;font-weight:800;color:var(--gray-400);font-family:'Barlow Condensed',sans-serif;}
+.rank-info{flex:1;min-width:0;}
+.rank-name{font-size:13.5px;font-weight:700;color:var(--gray-900);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-bar-track{height:8px;border-radius:5px;background:var(--gray-200);overflow:hidden;}
+.rank-bar-fill{height:100%;border-radius:5px;transition:width .3s;}
+.rank-meta{font-size:11px;color:var(--gray-400);margin-top:4px;}
+.rank-pct{width:54px;flex-shrink:0;text-align:right;font-size:16px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:var(--gray-900);}
 
 /* LISTA DE AUDITORIAS */
 .list-toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
@@ -298,6 +323,14 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .login-card .form-group{text-align:left;}
 .login-error{color:var(--red);font-size:12.5px;min-height:16px;margin:6px 0 0;text-align:left;}
 .login-hint{font-size:11.5px;color:var(--gray-400);margin-top:18px;}
+.password-wrap{position:relative;}
+.password-wrap .form-input{padding-right:40px;}
+.pw-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:30px;height:30px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-400);border-radius:6px;padding:0;}
+.pw-toggle:hover{color:var(--blue-dark);background:var(--gray-100);}
+.pw-toggle svg{width:18px;height:18px;}
+.login-remember{display:flex;align-items:center;gap:8px;margin:4px 0 2px;cursor:pointer;user-select:none;}
+.login-remember input{width:15px;height:15px;accent-color:var(--blue);cursor:pointer;flex-shrink:0;}
+.login-remember span{font-size:12.5px;color:var(--gray-600);}
 
 /* RESPONSIVE: sidebar collapses to a top bar on narrow screens */
 @media (max-width:760px){
@@ -339,6 +372,35 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .tpl-picker-item .tpl-picker-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;color:var(--gray-900);text-transform:uppercase;}
 .tpl-picker-item .tpl-picker-desc{font-size:12px;color:var(--gray-400);}
 .tpl-picker-item .tpl-picker-arrow{color:var(--blue);font-size:18px;}
+
+/* SOBRE O 5S */
+.senso-card{display:flex;align-items:center;gap:20px;background:white;border-radius:14px;padding:20px 24px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px;}
+.senso-icon{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;color:white;flex-shrink:0;}
+.senso-body{flex:1;min-width:0;}
+.senso-title-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.senso-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;letter-spacing:1px;}
+.senso-sub{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);}
+.senso-frase{font-size:14.5px;font-weight:700;color:var(--gray-900);margin-bottom:4px;}
+.senso-desc{font-size:13px;color:var(--gray-600);line-height:1.55;}
+
+/* ORGANOGRAMA */
+.org-chart{display:flex;flex-direction:column;align-items:center;padding:10px 10px 40px;}
+.org-level{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;width:100%;}
+.org-flow-arrow{font-size:22px;color:var(--gray-300);margin:2px 0;line-height:1;}
+.org-node{background:white;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:20px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;width:190px;text-align:center;}
+.org-node.is-top{border-top:4px solid var(--blue-dark);}
+.org-photo-wrap{position:relative;width:88px;height:88px;flex-shrink:0;}
+.org-photo{width:88px;height:88px;border-radius:50%;object-fit:cover;background:var(--gray-100);border:3px solid var(--gray-200);display:block;}
+.org-photo-placeholder{width:88px;height:88px;border-radius:50%;background:var(--gray-100);border:3px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--gray-300);}
+.org-photo-edit{position:absolute;bottom:-2px;right:-2px;width:28px;height:28px;border-radius:50%;background:var(--blue);color:white;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;}
+.org-photo-edit:hover{background:var(--blue-dark);}
+.org-role{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);}
+.org-name-input{border:none;border-bottom:1.5px solid var(--gray-200);text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--gray-900);padding:4px 2px;width:100%;background:transparent;}
+.org-name-input:focus{outline:none;border-bottom-color:var(--blue);}
+@media (max-width:760px){
+  .org-level{gap:16px;}
+  .org-node{width:150px;padding:16px 12px;}
+}
 
 /* RESPONSIVE / MOBILE */
 @media (max-width:760px){
@@ -405,7 +467,7 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 
 /* PRINT */
 @media print{
-  .topnav,.list-toolbar,.btn,.modal-overlay,.toast,.no-print{display:none!important;}
+  .topnav,.list-toolbar,.btn,.modal-overlay,.toast,.no-print,.sidebar{display:none!important;}
   .view{display:block!important;}
   #view-list,#view-dashboard{display:none!important;}
   #view-detail{display:block!important;}
@@ -433,8 +495,17 @@ body.printing-form .topnav{display:none!important;}
       </div>
       <div class="form-group full" style="margin-bottom:6px;">
         <label class="form-label">Senha</label>
-        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+        <div class="password-wrap">
+          <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="loginPwToggle" onclick="togglePasswordVisibility('loginPassword','loginPwToggle')" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
+      <label class="login-remember">
+        <input type="checkbox" id="loginRemember">
+        <span>Lembrar minha senha</span>
+      </label>
       <p id="loginError" class="login-error"></p>
       <button class="btn btn-primary" id="loginSubmitBtn" style="width:100%;justify-content:center;margin-top:10px;" onclick="doLogin()">Entrar</button>
       <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px;" onclick="toggleSignup(true)">Criar conta</button>
@@ -450,7 +521,12 @@ body.printing-form .topnav{display:none!important;}
       </div>
       <div class="form-group full" style="margin-bottom:6px;">
         <label class="form-label">Senha</label>
-        <input class="form-input" type="password" id="signupPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        <div class="password-wrap">
+          <input class="form-input" type="password" id="signupPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <button type="button" class="pw-toggle" id="signupPwToggle" onclick="togglePasswordVisibility('signupPassword','signupPwToggle')" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
       </div>
       <p id="signupError" class="login-error"></p>
       <button class="btn btn-primary" id="signupSubmitBtn" style="width:100%;justify-content:center;margin-top:10px;" onclick="doSignup()">Criar conta</button>
@@ -467,12 +543,14 @@ body.printing-form .topnav{display:none!important;}
     <img src="data:image/png;base64,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" alt="Eleve Telhas Metálicas" class="nav-logo"> <span>Sistema 5S</span>
   </div>
   <div class="sidebar-links">
-    <button class="sidebar-link active" onclick="showView('dashboard')">📊 <span class="link-label">Dashboard</span></button>
-    <button class="sidebar-link" onclick="showView('list')">📋 <span class="link-label">Auditorias</span></button>
-    <button class="sidebar-link" onclick="showView('templates')">🗂 <span class="link-label">Modelos</span></button>
-    <button class="sidebar-link" onclick="showView('meetings')">📅 <span class="link-label">Reuniões</span></button>
-    <button class="sidebar-link" onclick="showView('sectors')">🏢 <span class="link-label">Setores</span></button>
-    <button class="sidebar-link" onclick="showView('auditors')">👤 <span class="link-label">Auditores</span></button>
+    <button class="sidebar-link active" data-view="dashboard" onclick="showView('dashboard')">📊 <span class="link-label">Dashboard</span></button>
+    <button class="sidebar-link" data-view="list" onclick="showView('list')">📋 <span class="link-label">Auditorias</span></button>
+    <button class="sidebar-link" data-view="templates" onclick="showView('templates')">🗂 <span class="link-label">Modelos</span></button>
+    <button class="sidebar-link" data-view="meetings" onclick="showView('meetings')">📅 <span class="link-label">Reuniões</span></button>
+    <button class="sidebar-link" data-view="sectors" onclick="showView('sectors')">🏢 <span class="link-label">Setores</span></button>
+    <button class="sidebar-link" data-view="auditors" onclick="showView('auditors')">👤 <span class="link-label">Auditores</span></button>
+    <button class="sidebar-link" data-view="orgchart" onclick="showView('orgchart')">🧑‍🤝‍🧑 <span class="link-label">Organograma</span></button>
+    <button class="sidebar-link" data-view="about5s" onclick="showView('about5s')">📖 <span class="link-label">O que é 5S</span></button>
   </div>
   <div class="sidebar-spacer"></div>
   <div class="sidebar-actions">
@@ -492,6 +570,7 @@ body.printing-form .topnav{display:none!important;}
     <p id="dash-subtitle">Visão geral de todos os setores</p>
   </div>
   <div class="dash-main">
+    <div class="motivation-card" id="motivationCard"></div>
     <div class="list-toolbar">
       <select class="filter-select" id="dashFilterSector" onchange="renderDashboard()">
         <option value="">Todos os setores</option>
@@ -533,10 +612,22 @@ body.printing-form .topnav{display:none!important;}
         <div style="position:relative;height:240px;" id="chartSectors" role="img" aria-label="Gráfico de NCs por setor"></div>
       </div>
     </div>
-    <div class="charts-row" style="grid-template-columns:1fr;">
+    <div class="charts-row charts-row-full">
+      <div class="chart-card">
+        <h3>🧭 Não Conformidades por Senso (5S)</h3>
+        <p class="chart-hint">Considera os filtros de setor/mês/ano selecionados acima</p>
+        <div style="position:relative;min-height:220px;" id="chartSensoNC" role="img" aria-label="Gráfico de não conformidades por senso do 5S"></div>
+      </div>
+    </div>
+    <div class="charts-row charts-row-even">
       <div class="chart-card">
         <h3>% de Conformidade Média por Setor</h3>
         <div style="position:relative;min-height:220px;" id="chartConformitySectors" role="img" aria-label="Gráfico de percentual de conformidade média por setor"></div>
+      </div>
+      <div class="chart-card">
+        <h3>🏆 Ranking de Setores — Conformidade</h3>
+        <p class="chart-hint">Considera os filtros de setor/mês/ano selecionados acima</p>
+        <div id="dash-ranking"></div>
       </div>
     </div>
     <div class="section-title">Últimas Auditorias</div>
@@ -664,6 +755,28 @@ body.printing-form .topnav{display:none!important;}
   </div>
 </div>
 
+<!-- ORGCHART VIEW -->
+<div id="view-orgchart" class="view">
+  <div class="dash-header">
+    <h1>Organograma do Comitê 5S</h1>
+    <p>Responsáveis pela condução do programa 5S, com foto e nome de cada função</p>
+  </div>
+  <div class="dash-main">
+    <div id="orgchart-container"></div>
+  </div>
+</div>
+
+<!-- ABOUT 5S VIEW -->
+<div id="view-about5s" class="view">
+  <div class="dash-header">
+    <h1>O que é o 5S</h1>
+    <p>Entenda o significado de cada um dos 5 sensos</p>
+  </div>
+  <div class="dash-main">
+    <div id="about5s-container"></div>
+  </div>
+</div>
+
 <!-- DETAIL VIEW -->
 <div id="view-detail" class="view">
   <div class="detail-header">
@@ -725,6 +838,7 @@ body.printing-form .topnav{display:none!important;}
       <div class="section-title" style="font-size:13px;margin-top:22px;">Fotos da Auditoria</div>
       <div class="modal-photo-grid" id="modalPhotoGrid"></div>
       <input type="file" id="photoInput" accept="image/*" multiple capture="environment" style="display:none" onchange="handlePhotoFiles(event)">
+<input type="file" id="orgPhotoInput" accept="image/*" style="display:none" onchange="handleOrgPhotoFile(event)">
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
@@ -747,6 +861,33 @@ body.printing-form .topnav{display:none!important;}
     <div class="modal-footer">
       <button class="btn btn-ghost" id="confirmCancelBtn">Cancelar</button>
       <button class="btn btn-danger" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: AVISO AUTOMÁTICO DE REUNIÃO (dispara quando a data da reunião chega) -->
+<div class="modal-overlay" id="meetingAlertOverlay">
+  <div class="modal" style="width:min(94vw,440px);">
+    <div class="modal-header" style="background:var(--blue-light);align-items:flex-start;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;">🔔</div>
+        <div>
+          <h2 style="font-size:16px;color:var(--blue-dark);">É hoje!</h2>
+          <p style="font-size:12px;color:var(--gray-600);margin-top:2px;">Você tem uma reunião marcada para hoje</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <h3 id="maTitle" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;color:var(--gray-900);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;"></h3>
+      <div id="maMeta" style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--gray-600);margin-bottom:10px;"></div>
+      <p id="maAgenda" style="font-size:13px;color:var(--gray-600);line-height:1.5;"></p>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <span id="maQueueHint" style="font-size:11.5px;color:var(--gray-400);"></span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="dismissMeetingAlert()">Ok, entendi</button>
+        <button class="btn btn-primary" onclick="goToMeetingFromAlert()">📅 Ver na agenda</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1087,18 +1228,53 @@ const INDUSTRIAL_5S_CRITERIA = [
   'Saídas de emergência, extintores e quadros de energia desobstruídos',
   'Resíduos e rejeitos separados corretamente conforme classificação (recicláveis, contaminados, etc.)'
 ];
+// ===================== 5S — SENSOS (catálogo + classificação) =====================
+const SENSOS = [
+  { id: 'seiri', nome: 'Seiri', pt: 'Utilização', cor: '#D32F2F', icone: '🗑️', frase: 'Separar o necessário do desnecessário', desc: 'Consiste em identificar tudo o que é realmente necessário no local de trabalho e descartar, doar ou realocar o que não tem utilidade. Menos itens acumulados significa menos bagunça, menos risco e mais espaço para o que realmente importa.' },
+  { id: 'seiton', nome: 'Seiton', pt: 'Organização', cor: '#F59E0B', icone: '🗄️', frase: 'Organizar tudo de maneira lógica e acessível', desc: 'Cada item deve ter um lugar definido, identificado e de fácil acesso. Um bom Seiton reduz o tempo perdido procurando ferramentas, documentos ou materiais e evita erros por itens fora do lugar.' },
+  { id: 'seiso', nome: 'Seiso', pt: 'Limpeza', cor: '#1B7F3A', icone: '🧹', frase: 'Ambiente limpo revela problemas rapidamente', desc: 'Manter o ambiente limpo não é apenas estética: a limpeza frequente permite enxergar vazamentos, desgastes e falhas antes que se tornem problemas maiores. Limpar é também inspecionar.' },
+  { id: 'seiketsu', nome: 'Seiketsu', pt: 'Padronização', cor: '#0891B2', icone: '📋', frase: 'Criar padrões visuais e práticas que mantém a ordem', desc: 'É a etapa de transformar os 3 primeiros sensos em rotina, com padrões visuais, checklists e instruções claras que qualquer pessoa da equipe consiga seguir e manter.' },
+  { id: 'shitsuke', nome: 'Shitsuke', pt: 'Disciplina', cor: '#0B3A57', icone: '🧑', frase: 'Cultura de manter e melhorar continuamente', desc: 'É o compromisso de toda a equipe em manter os padrões estabelecidos como hábito, sem precisar de cobrança, e buscar melhorias contínuas — o que sustenta o programa 5S no longo prazo.' },
+];
+const SENSO_BY_ID = Object.fromEntries(SENSOS.map(s => [s.id, s]));
+
+// Tenta identificar o senso (S) de um critério a partir do texto, procurando
+// pelas palavras-chave (ex.: "... (Seiri)"). Usado como fallback quando o
+// critério não tem um senso definido explicitamente.
+function inferSenso(text) {
+  if (!text) return '';
+  const t = text.toLowerCase();
+  if (/seiri/.test(t)) return 'seiri';
+  if (/seiton/.test(t)) return 'seiton';
+  if (/seiso|seisou/.test(t)) return 'seiso';
+  if (/seiketsu/.test(t)) return 'seiketsu';
+  if (/shitsuke/.test(t)) return 'shitsuke';
+  return '';
+}
+// Normaliza um critério de modelo (string legada OU objeto {text,senso}) para {text, senso}
+function normalizeCriterion(c) {
+  if (typeof c === 'string') return { text: c, senso: inferSenso(c) };
+  return { text: c.text || '', senso: c.senso || inferSenso(c.text) || '' };
+}
+// Retorna o senso de uma linha de auditoria (usa o campo salvo ou tenta inferir do texto)
+function getRowSenso(row) {
+  return (row && (row.senso || inferSenso(row.text))) || '';
+}
+
 let TEMPLATES = safeLoad('auditorias5s_templates', null);
 if (!Array.isArray(TEMPLATES) || TEMPLATES.length === 0) {
-  TEMPLATES = [{ id: 'tpl1', name: '5S - Padrão', description: 'Checklist padrão de auditoria 5S', criteria: DEFAULT_CRITERIA.slice() }];
+  TEMPLATES = [{ id: 'tpl1', name: '5S - Padrão', description: 'Checklist padrão de auditoria 5S', criteria: DEFAULT_CRITERIA.map(normalizeCriterion) }];
 }
 // Garante que os modelos pré-configurados de Escritório e Produção Industrial existam,
 // sem duplicar nem sobrescrever modelos que o usuário já tenha customizado.
 if (!TEMPLATES.some(t => t.id === 'tpl_office')) {
-  TEMPLATES.push({ id: 'tpl_office', name: '5S - Escritório', description: 'Checklist de auditoria 5S para áreas administrativas', criteria: OFFICE_5S_CRITERIA.slice() });
+  TEMPLATES.push({ id: 'tpl_office', name: '5S - Escritório', description: 'Checklist de auditoria 5S para áreas administrativas', criteria: OFFICE_5S_CRITERIA.map(normalizeCriterion) });
 }
 if (!TEMPLATES.some(t => t.id === 'tpl_industrial')) {
-  TEMPLATES.push({ id: 'tpl_industrial', name: '5S - Produção Industrial', description: 'Checklist de auditoria 5S para chão de fábrica e linhas de produção', criteria: INDUSTRIAL_5S_CRITERIA.slice() });
+  TEMPLATES.push({ id: 'tpl_industrial', name: '5S - Produção Industrial', description: 'Checklist de auditoria 5S para chão de fábrica e linhas de produção', criteria: INDUSTRIAL_5S_CRITERIA.map(normalizeCriterion) });
 }
+// Compatibilidade: normaliza modelos salvos no formato antigo (critério = string simples)
+TEMPLATES.forEach(t => { if (Array.isArray(t.criteria)) t.criteria = t.criteria.map(normalizeCriterion); });
 try { localStorage.setItem('auditorias5s_templates', JSON.stringify(TEMPLATES)); } catch (err) { console.error(err); }
 let editingTemplateId = null;
 let templateCriteria = [];
@@ -1136,13 +1312,16 @@ function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.sidebar-link').forEach(t => t.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
-  const tabs = document.querySelectorAll('.sidebar-link');
-  if (name === 'dashboard') { tabs[0].classList.add('active'); renderDashboard(); }
-  else if (name === 'list') { tabs[1].classList.add('active'); renderList(); }
-  else if (name === 'templates') { tabs[2].classList.add('active'); renderTemplates(); }
-  else if (name === 'meetings') { tabs[3].classList.add('active'); renderMeetingsAgenda(); renderAtasList(); }
-  else if (name === 'sectors') { tabs[4].classList.add('active'); renderSectors(); }
-  else if (name === 'auditors') { tabs[5].classList.add('active'); renderAuditors(); }
+  const activeTab = document.querySelector(`.sidebar-link[data-view="${name}"]`);
+  if (activeTab) activeTab.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  else if (name === 'list') renderList();
+  else if (name === 'templates') renderTemplates();
+  else if (name === 'meetings') { renderMeetingsAgenda(); renderAtasList(); }
+  else if (name === 'sectors') renderSectors();
+  else if (name === 'auditors') renderAuditors();
+  else if (name === 'orgchart') renderOrgChart();
+  else if (name === 'about5s') renderAbout5S();
   window.scrollTo(0, 0);
 }
 
@@ -1186,7 +1365,7 @@ function openEditTemplate(id) {
   const t = TEMPLATES.find(x => x.id === id);
   if (!t) return;
   editingTemplateId = id;
-  templateCriteria = t.criteria.map((text, i) => ({ id: i + 1, text }));
+  templateCriteria = t.criteria.map((c, i) => { const n = normalizeCriterion(c); return { id: i + 1, text: n.text, senso: n.senso }; });
   templateCriterionId = templateCriteria.length + 1;
   document.getElementById('template-modal-title').textContent = 'Editar Modelo';
   document.getElementById('tplName').value = t.name;
@@ -1206,12 +1385,14 @@ function renderTemplateCriteria() {
     cont.innerHTML = '<div style="padding:16px;text-align:center;color:var(--gray-400);font-size:13px;">Nenhum critério ainda. Clique em "+ Adicionar Critério".</div>';
     return;
   }
+  const sensoOptions = '<option value="">— Senso —</option>' + SENSOS.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
   templateCriteria.forEach((c, idx) => {
     const row = document.createElement('div');
     row.className = 'tpl-criterion-row';
     row.innerHTML = `
       <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--blue);min-width:22px;">${String(idx + 1).padStart(2, '0')}</span>
       <input type="text" value="${c.text}" onchange="updateTemplateCriterion(${c.id}, this.value)">
+      <select class="filter-select" style="max-width:132px;" onchange="updateTemplateCriterionSenso(${c.id}, this.value)">${sensoOptions.replace(`value="${c.senso}"`, `value="${c.senso}" selected`)}</select>
       <button class="del-btn" onclick="delTemplateCriterion(${c.id})" title="Remover">🗑</button>
     `;
     cont.appendChild(row);
@@ -1219,12 +1400,16 @@ function renderTemplateCriteria() {
 }
 
 function addTemplateCriterion() {
-  templateCriteria.push({ id: templateCriterionId++, text: 'Novo critério — clique para editar' });
+  templateCriteria.push({ id: templateCriterionId++, text: 'Novo critério — clique para editar', senso: '' });
   renderTemplateCriteria();
 }
 function updateTemplateCriterion(id, val) {
   const c = templateCriteria.find(x => x.id === id);
   if (c) c.text = val;
+}
+function updateTemplateCriterionSenso(id, val) {
+  const c = templateCriteria.find(x => x.id === id);
+  if (c) c.senso = val;
 }
 function delTemplateCriterion(id) {
   templateCriteria = templateCriteria.filter(x => x.id !== id);
@@ -1236,13 +1421,15 @@ function saveTemplate() {
   if (!name) { showToast('⚠️ Dê um nome ao modelo!'); return; }
   if (templateCriteria.length === 0) { showToast('⚠️ Adicione ao menos um critério!'); return; }
   const desc = document.getElementById('tplDesc').value.trim();
-  const criteriaTexts = templateCriteria.map(c => c.text.trim()).filter(Boolean);
+  const criteria = templateCriteria
+    .map(c => ({ text: c.text.trim(), senso: c.senso || inferSenso(c.text) || '' }))
+    .filter(c => c.text);
   if (editingTemplateId) {
     const idx = TEMPLATES.findIndex(x => x.id === editingTemplateId);
-    if (idx !== -1) TEMPLATES[idx] = { ...TEMPLATES[idx], name, description: desc, criteria: criteriaTexts };
+    if (idx !== -1) TEMPLATES[idx] = { ...TEMPLATES[idx], name, description: desc, criteria };
     showToast('✅ Modelo atualizado!');
   } else {
-    TEMPLATES.push({ id: 'tpl' + Date.now(), name, description: desc, criteria: criteriaTexts });
+    TEMPLATES.push({ id: 'tpl' + Date.now(), name, description: desc, criteria });
     showToast('✅ Modelo criado!');
   }
   saveTemplates();
@@ -1294,7 +1481,7 @@ function printTemplateForm(id) {
     const rows = (t.criteria || []).map((c, i) => `
       <tr>
         <td style="width:28px;text-align:center;">${i + 1}</td>
-        <td>${c}</td>
+        <td>${normalizeCriterion(c).text}</td>
         <td class="pf-chk" style="width:110px;">☐ C&nbsp;&nbsp;☐ NC</td>
         <td style="width:180px;"></td>
       </tr>`).join('');
@@ -1506,6 +1693,89 @@ async function deleteMeeting(id) {
   renderMeetingsAgenda();
   showToast('🗑 Reunião removida');
 }
+
+// ===================== AVISO AUTOMÁTICO DE REUNIÃO =====================
+// Ao atingir a data (e horário, se informado) de uma reunião agendada,
+// abre automaticamente um aviso na tela — sem precisar entrar em "Reuniões".
+let meetingAlertsShown = new Set(safeLoad('auditorias5s_meeting_alerts_shown', []));
+function saveMeetingAlertsShown() {
+  try { localStorage.setItem('auditorias5s_meeting_alerts_shown', JSON.stringify([...meetingAlertsShown])); }
+  catch (err) { console.error('Erro ao salvar avisos de reunião:', err); }
+}
+let meetingAlertQueue = [];
+let meetingAlertOpen = false;
+
+function checkMeetingAlerts() {
+  // só verifica com o usuário logado (app visível)
+  if (!document.getElementById('loginScreen').classList.contains('hidden')) return;
+  const now = new Date();
+  const todayIso = isoDate(now.getFullYear(), now.getMonth(), now.getDate());
+  const nowHM = pad2(now.getHours()) + ':' + pad2(now.getMinutes());
+  MEETINGS.forEach(m => {
+    if (m.date !== todayIso) return; // só dispara no dia da reunião
+    if (m.time && m.time > nowHM) return; // ainda não chegou o horário marcado
+    const key = m.id + '_' + m.date;
+    if (meetingAlertsShown.has(key)) return;
+    if (meetingAlertQueue.some(q => q.id === m.id)) return;
+    meetingAlertQueue.push(m);
+  });
+  if (meetingAlertQueue.length && !meetingAlertOpen) showNextMeetingAlert();
+}
+
+function showNextMeetingAlert() {
+  if (!meetingAlertQueue.length) { meetingAlertOpen = false; return; }
+  const m = meetingAlertQueue[0];
+  meetingAlertOpen = true;
+  document.getElementById('maTitle').textContent = m.title || 'Reunião';
+  const metaParts = [];
+  metaParts.push(`<span>🕒 ${m.time ? m.time : 'Horário não definido'}</span>`);
+  if (m.sector) metaParts.push(`<span>🏢 ${m.sector}</span>`);
+  if (m.location) metaParts.push(`<span>📍 ${m.location}</span>`);
+  document.getElementById('maMeta').innerHTML = metaParts.join('');
+  document.getElementById('maAgenda').textContent = m.agenda || '';
+  const remaining = meetingAlertQueue.length - 1;
+  document.getElementById('maQueueHint').textContent = remaining > 0 ? `+${remaining} outra(s) reunião(ões) hoje` : '';
+  document.getElementById('meetingAlertOverlay').classList.add('open');
+  // aviso extra do navegador (opcional, só se a permissão já tiver sido concedida)
+  if (window.Notification && Notification.permission === 'granted') {
+    try {
+      new Notification('🔔 Reunião hoje: ' + (m.title || ''), {
+        body: [m.time, m.sector, m.location].filter(Boolean).join(' · ') || 'Confira os detalhes no sistema.',
+      });
+    } catch (err) { /* ignora se o navegador bloquear */ }
+  }
+}
+
+function dismissMeetingAlert() {
+  const m = meetingAlertQueue.shift();
+  if (m) { meetingAlertsShown.add(m.id + '_' + m.date); saveMeetingAlertsShown(); }
+  document.getElementById('meetingAlertOverlay').classList.remove('open');
+  meetingAlertOpen = false;
+  setTimeout(() => { if (meetingAlertQueue.length) showNextMeetingAlert(); }, 350);
+}
+
+function goToMeetingFromAlert() {
+  const m = meetingAlertQueue[0];
+  dismissMeetingAlert();
+  if (m) {
+    showView('meetings');
+    switchMeetingsSubtab('agenda');
+    calYear = parseInt(m.date.slice(0, 4), 10);
+    calMonth = parseInt(m.date.slice(5, 7), 10) - 1;
+    calSelectedDate = m.date;
+    renderMeetingsAgenda();
+  }
+}
+
+// Verifica ao entrar no sistema, a cada minuto (para pegar a virada do dia/horário
+// com o app aberto) e sempre que a aba voltar a ficar visível. Também atualiza a
+// mensagem motivacional do dia, caso o app fique aberto passando da meia-noite.
+function periodicChecks() {
+  checkMeetingAlerts();
+  renderMotivationMessage();
+}
+setInterval(periodicChecks, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) periodicChecks(); });
 
 // ===================== ATAS DE REUNIÃO =====================
 let ATAS = safeLoad('auditorias5s_atas', []);
@@ -2043,7 +2313,144 @@ async function deleteAuditor(id) {
   showToast('🗑 Auditor removido');
 }
 
+// ===================== ORGANOGRAMA DO COMITÊ 5S =====================
+const ORG_ROLES = [
+  { id: 'presidente', label: 'Presidente do Comitê', top: true },
+  { id: 'secretaria', label: 'Secretaria(o)' },
+  { id: 'auditor1', label: 'Auditor 1' },
+  { id: 'auditor2', label: 'Auditor 2' },
+  { id: 'orcamentista', label: 'Orçamentista' },
+];
+let ORGCHART = safeLoad('auditorias5s_orgchart', null);
+if (!ORGCHART || typeof ORGCHART !== 'object' || Array.isArray(ORGCHART)) ORGCHART = {};
+ORG_ROLES.forEach(r => { if (!ORGCHART[r.id]) ORGCHART[r.id] = { name: '', photo: '' }; });
+
+function saveOrgChart() {
+  try { localStorage.setItem('auditorias5s_orgchart', JSON.stringify(ORGCHART)); return true; }
+  catch (err) { console.error('Erro ao salvar organograma:', err); return false; }
+}
+
+function buildOrgNodeHTML(roleId, label, isTop) {
+  const d = ORGCHART[roleId] || { name: '', photo: '' };
+  const photoHtml = d.photo
+    ? `<img class="org-photo" src="${d.photo}" alt="${label}">`
+    : `<div class="org-photo-placeholder">👤</div>`;
+  return `
+    <div class="org-node${isTop ? ' is-top' : ''}">
+      <div class="org-photo-wrap">
+        ${photoHtml}
+        <button class="org-photo-edit" onclick="openOrgPhotoCapture('${roleId}')" title="Alterar foto">📷</button>
+      </div>
+      <div class="org-role">${label}</div>
+      <input class="org-name-input" type="text" placeholder="Nome do responsável" value="${d.name || ''}" onchange="updateOrgName('${roleId}', this.value)">
+    </div>`;
+}
+
+function renderOrgChart() {
+  const cont = document.getElementById('orgchart-container');
+  if (!cont) return;
+  cont.innerHTML = `
+    <div class="org-chart">
+      <div class="org-level">${buildOrgNodeHTML('presidente', 'Presidente do Comitê', true)}</div>
+      <div class="org-flow-arrow">↓</div>
+      <div class="org-level">${buildOrgNodeHTML('secretaria', 'Secretaria(o)')}</div>
+      <div class="org-flow-arrow">↓</div>
+      <div class="org-level">
+        ${buildOrgNodeHTML('auditor1', 'Auditor 1')}
+        ${buildOrgNodeHTML('auditor2', 'Auditor 2')}
+        ${buildOrgNodeHTML('orcamentista', 'Orçamentista')}
+      </div>
+    </div>`;
+}
+
+function updateOrgName(roleId, val) {
+  if (!ORGCHART[roleId]) ORGCHART[roleId] = { name: '', photo: '' };
+  ORGCHART[roleId].name = val.trim();
+  saveOrgChart();
+}
+
+let orgPhotoTargetRole = null;
+function openOrgPhotoCapture(roleId) {
+  orgPhotoTargetRole = roleId;
+  document.getElementById('orgPhotoInput').click();
+}
+function handleOrgPhotoFile(e) {
+  const file = (e.target.files || [])[0];
+  if (!file || !orgPhotoTargetRole) { e.target.value = ''; return; }
+  const roleId = orgPhotoTargetRole;
+  showToast('📷 Processando foto...');
+  compressImage(file, 480, 0.85)
+    .then(dataUrl => {
+      if (!ORGCHART[roleId]) ORGCHART[roleId] = { name: '', photo: '' };
+      ORGCHART[roleId].photo = dataUrl;
+      saveOrgChart();
+      renderOrgChart();
+      showToast('✅ Foto atualizada');
+    })
+    .catch(() => showToast('❌ Não foi possível processar a foto'));
+  e.target.value = '';
+  orgPhotoTargetRole = null;
+}
+
+// ===================== O QUE É O 5S =====================
+function renderAbout5S() {
+  const cont = document.getElementById('about5s-container');
+  if (!cont) return;
+  const banner = `
+    <div style="background:linear-gradient(135deg,var(--blue-dark),var(--blue));border-radius:16px;padding:24px 28px;margin-bottom:22px;color:white;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:1px;">5S — Fundamento da Organização e Disciplina Operacional</div>
+      <p style="font-size:13.5px;color:rgba(255,255,255,.82);margin-top:6px;max-width:680px;line-height:1.5;">Metodologia japonesa que organiza o ambiente de trabalho a partir de 5 sensos aplicados em sequência. Juntos, eles formam a base de qualquer programa de qualidade, segurança e produtividade.</p>
+    </div>`;
+  const cards = SENSOS.map((s, i) => `
+    <div class="senso-card">
+      <div class="senso-icon" style="background:${s.cor};">${s.icone}</div>
+      <div class="senso-body">
+        <div class="senso-title-row">
+          <span class="senso-title" style="color:${s.cor};">${i + 1}º S — ${s.nome}</span>
+          <span class="senso-sub">${s.pt}</span>
+        </div>
+        <div class="senso-frase">${s.frase}</div>
+        <div class="senso-desc">${s.desc}</div>
+      </div>
+    </div>`).join('');
+  cont.innerHTML = banner + cards;
+}
+
 // ===================== AUTENTICAÇÃO (Supabase Auth) =====================
+const EYE_OPEN_PATH = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/>';
+const EYE_OFF_PATH = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.7 19.7 0 0 1 4.22-5.44M9.9 4.24A9.6 9.6 0 0 1 12 4c7 0 11 8 11 8a19.6 19.6 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+
+function togglePasswordVisibility(inputId, btnId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.querySelector('svg').innerHTML = isHidden ? EYE_OFF_PATH : EYE_OPEN_PATH;
+  btn.title = isHidden ? 'Ocultar senha' : 'Mostrar senha';
+  btn.setAttribute('aria-label', btn.title);
+}
+
+// "Lembrar minha senha": guarda e-mail/senha localmente (apenas neste navegador)
+// para pré-preencher o login na próxima visita. Não é um mecanismo seguro de
+// criptografia — apenas uma conveniência local, como a maioria dos sites faz.
+const REMEMBER_KEY = 'sistema5s_remember_login';
+function saveRememberedLogin(email, password) {
+  try { localStorage.setItem(REMEMBER_KEY, btoa(unescape(encodeURIComponent(JSON.stringify({ email, password }))))); } catch (e) {}
+}
+function clearRememberedLogin() {
+  try { localStorage.removeItem(REMEMBER_KEY); } catch (e) {}
+}
+function loadRememberedLogin() {
+  try {
+    const raw = localStorage.getItem(REMEMBER_KEY);
+    if (!raw) return;
+    const { email, password } = JSON.parse(decodeURIComponent(escape(atob(raw))));
+    document.getElementById('loginEmail').value = email || '';
+    document.getElementById('loginPassword').value = password || '';
+    document.getElementById('loginRemember').checked = true;
+  } catch (e) {}
+}
+
 function toggleSignup(showSignup) {
   document.getElementById('loginFormBox').style.display = showSignup ? 'none' : 'block';
   document.getElementById('signupFormBox').style.display = showSignup ? 'block' : 'none';
@@ -2057,6 +2464,7 @@ function showApp(userLabel) {
   document.getElementById('sidebarUser').textContent = userLabel || 'Usuário';
   loadSectorsFromSupabase();
   loadAuditorsFromSupabase();
+  checkMeetingAlerts();
 }
 function showLogin() {
   document.getElementById('appShell').style.display = 'none';
@@ -2078,6 +2486,11 @@ async function doLogin() {
   try {
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    if (document.getElementById('loginRemember').checked) {
+      saveRememberedLogin(email, password);
+    } else {
+      clearRememberedLogin();
+    }
     showApp(data.user ? data.user.email : email);
   } catch (err) {
     console.error('Erro de login:', err);
@@ -2149,7 +2562,68 @@ async function initAuth() {
     });
   }
 }
+loadRememberedLogin();
 initAuth();
+
+// ===================== MENSAGEM MOTIVACIONAL DIÁRIA (5S) =====================
+// Mensagens de incentivo trocadas diariamente no Dashboard, assinadas pelo mentor do
+// programa 5S. A mensagem muda automaticamente todo dia (baseada na data), sem precisar
+// de conexão ou cadastro manual — e é a mesma para todos os usuários no mesmo dia.
+const MOTIVATION_AUTHOR = 'C@p Consultoria';
+const MOTIVATION_MESSAGES_5S = [
+  'Um ambiente organizado começa com uma decisão simples: separar o necessário do desnecessário. Pratique o Seiri hoje.',
+  'Cada ferramenta no seu lugar é tempo que você não vai perder amanhã procurando por ela. Isso é Seiton em ação.',
+  'Limpar não é só estética — é a melhor forma de enxergar um problema antes que ele vire um acidente. Pratique o Seiso.',
+  'Padrão bom é aquele que qualquer pessoa da equipe consegue seguir sem precisar perguntar. Isso é Seiketsu.',
+  'Disciplina não é sobre fazer certo uma vez — é sobre manter o certo todos os dias. Essa é a força do Shitsuke.',
+  'O 5S não é um evento, é um hábito. Pequenas ações diárias sustentam grandes resultados.',
+  'Organização não é sobre ter menos coisas — é sobre ter só o que tem propósito.',
+  'Todo processo de qualidade começa com um ambiente de trabalho arrumado. Cuide do seu espaço, cuide do seu resultado.',
+  'Uma auditoria 5S bem feita não procura culpados — procura oportunidades de melhoria.',
+  'A disciplina de hoje é o que evita o retrabalho de amanhã.',
+  'Segurança e organização andam juntas: um chão limpo e sinalizado é um passo a menos para um acidente.',
+  'O que não tem lugar definido, cedo ou tarde, vira bagunça. Dê um lugar para cada coisa.',
+  'Antes de comprar ou guardar mais um item, pergunte: isso realmente é necessário aqui?',
+  'Padronizar é ensinar o caminho certo de um jeito que todos consigam repetir com facilidade.',
+  'A melhoria contínua começa com um simples "dá pra melhorar isso".',
+  'Um posto de trabalho limpo transmite cuidado — com o processo, com o produto e com quem trabalha ali.',
+  'O 5S transforma o ambiente, mas quem sustenta a transformação é a atitude de cada um.',
+  'Não é sobre perfeição, é sobre progresso constante. Um passo por dia já é 5S.',
+  'A maior conquista de uma auditoria não é a nota — é o que a equipe aprende com ela.',
+  'Corrigir uma não conformidade hoje é mais barato e mais seguro do que lidar com ela amanhã.',
+  'Organização é um presente que você dá para o seu "eu" de amanhã.',
+  'Equipes que praticam o 5S com constância trabalham com menos estresse e mais eficiência.',
+  'Um ambiente de trabalho arrumado facilita decisões rápidas e reduz erros.',
+  'A disciplina do 5S começa nos pequenos detalhes: a etiqueta no lugar certo, o carrinho guardado, a bancada limpa.',
+  'Cuidar do ambiente de trabalho é também cuidar da segurança de quem trabalha com você.',
+  'O maior sinal de maturidade de uma equipe 5S é manter o padrão mesmo quando ninguém está auditando.',
+  'Toda melhoria começa com a coragem de admitir que algo pode ser feito de um jeito melhor.',
+  'Um checklist bem preenchido hoje é uma decisão mais rápida amanhã.',
+  'A cultura de excelência se constrói todos os dias, um senso de cada vez.',
+  'Você não precisa fazer tudo de uma vez — precisa apenas não parar de melhorar.',
+];
+
+function getDailyMotivationMessage() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  const idx = ((dayOfYear % MOTIVATION_MESSAGES_5S.length) + MOTIVATION_MESSAGES_5S.length) % MOTIVATION_MESSAGES_5S.length;
+  return MOTIVATION_MESSAGES_5S[idx];
+}
+
+function renderMotivationMessage() {
+  const cont = document.getElementById('motivationCard');
+  if (!cont) return;
+  const msg = getDailyMotivationMessage();
+  const dateStr = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  cont.innerHTML = `
+    <div class="motivation-icon">💬</div>
+    <div class="motivation-body">
+      <div class="motivation-label">Mensagem do Dia · Programa 5S</div>
+      <p class="motivation-text">"${msg}"</p>
+      <div class="motivation-author">— ${MOTIVATION_AUTHOR}, mentor 5S · ${dateStr}</div>
+    </div>`;
+}
 
 // ===================== DASHBOARD =====================
 function clearDashboardFilters() {
@@ -2160,6 +2634,7 @@ function clearDashboardFilters() {
 }
 
 function renderDashboard() {
+  renderMotivationMessage();
   // populate sector filter (options come from the full dataset, not the filtered one)
   const sectorSel = document.getElementById('dashFilterSector');
   const sectorCur = sectorSel.value;
@@ -2215,6 +2690,46 @@ function renderDashboard() {
     cont.innerHTML = buildTableHTML(recent);
   }
   renderCharts(filteredDB);
+  document.getElementById('dash-ranking').innerHTML = buildSectorRankingHTML(filteredDB);
+}
+
+function buildSectorRankingHTML(data) {
+  if (!data.length) {
+    return '<div class="empty-state"><div class="icon">🏆</div><h3>Sem dados</h3><p>Ajuste os filtros para ver o ranking.</p></div>';
+  }
+  const stats = {};
+  data.forEach(a => {
+    const tot = a.rows.length, ok = a.rows.filter(r => r.ok).length, nc = a.rows.filter(r => r.nc).length;
+    if (!stats[a.sector]) stats[a.sector] = { okSum: 0, totSum: 0, ncSum: 0, audits: 0 };
+    stats[a.sector].okSum += ok;
+    stats[a.sector].totSum += tot;
+    stats[a.sector].ncSum += nc;
+    stats[a.sector].audits += 1;
+  });
+  const ranked = Object.keys(stats).map(sector => {
+    const s = stats[sector];
+    return {
+      sector,
+      pct: s.totSum ? Math.round(s.okSum / s.totSum * 100) : 0,
+      audits: s.audits,
+      ncs: s.ncSum,
+    };
+  }).sort((a, b) => b.pct - a.pct || b.audits - a.audits);
+  const medals = ['🥇', '🥈', '🥉'];
+  const rows = ranked.map((r, i) => {
+    const barColor = r.pct >= 80 ? 'var(--green)' : (r.pct >= 50 ? 'var(--yellow)' : 'var(--red)');
+    return `
+      <div class="rank-row ${i === 0 ? 'rank-first' : ''}">
+        <div class="rank-pos">${medals[i] || (i + 1) + 'º'}</div>
+        <div class="rank-info">
+          <div class="rank-name">${r.sector}</div>
+          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${r.pct}%;background:${barColor};"></div></div>
+          <div class="rank-meta">${r.audits} auditoria${r.audits !== 1 ? 's' : ''} · ${r.ncs} NC${r.ncs !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="rank-pct">${r.pct}%</div>
+      </div>`;
+  }).join('');
+  return `<div class="rank-list">${rows}</div>`;
 }
 
 function renderCharts(sourceDB) {
@@ -2256,6 +2771,41 @@ function renderCharts(sourceDB) {
   });
   const confCont = document.getElementById('chartConformitySectors');
   confCont.innerHTML = buildHorizontalBarSVG(confLabels, confValues);
+
+  // ---------- NC's por Senso (5S) ----------
+  const sensoCounts = Object.fromEntries(SENSOS.map(s => [s.id, 0]));
+  let outrosNCs = 0;
+  data.forEach(a => {
+    a.rows.filter(r => r.nc).forEach(r => {
+      const senso = getRowSenso(r);
+      if (senso && sensoCounts.hasOwnProperty(senso)) sensoCounts[senso]++;
+      else outrosNCs++;
+    });
+  });
+  const sensoCont = document.getElementById('chartSensoNC');
+  sensoCont.innerHTML = buildSensoNCBarSVG(sensoCounts, outrosNCs);
+}
+
+function buildSensoNCBarSVG(sensoCounts, outrosNCs) {
+  const items = SENSOS.map(s => ({ label: s.nome, value: sensoCounts[s.id] || 0, color: s.cor }));
+  if (outrosNCs > 0) items.push({ label: 'Não classificado', value: outrosNCs, color: '#9BA3AE' });
+  const total = items.reduce((s, it) => s + it.value, 0);
+  if (total === 0) {
+    return '<div style="display:flex;align-items:center;justify-content:center;height:220px;color:var(--gray-400);font-size:13px;">Nenhuma não conformidade registrada nesse período 🎉</div>';
+  }
+  const maxV = Math.max(...items.map(it => it.value), 1);
+  const rowH = 36, padTop = 10, padBottom = 10, labelW = 130, barAreaW = 420, W = labelW + barAreaW + 50, H = padTop + padBottom + rowH * items.length;
+  const rows = items.map((it, i) => {
+    const y = padTop + i * rowH;
+    const barW = it.value ? Math.max(3, (it.value / maxV) * barAreaW) : 0;
+    return `
+      <text x="${labelW - 10}" y="${y + rowH/2}" text-anchor="end" dominant-baseline="middle" font-size="12" fill="#221E1F" font-family="Barlow,sans-serif" font-weight="600">${it.label}</text>
+      <rect x="${labelW}" y="${y + 7}" width="${barAreaW}" height="${rowH - 14}" rx="6" fill="#EAECF0"/>
+      <rect x="${labelW}" y="${y + 7}" width="${barW.toFixed(1)}" height="${rowH - 14}" rx="6" fill="${it.color}"><title>${it.label}: ${it.value}</title></rect>
+      <text x="${labelW + barAreaW + 10}" y="${y + rowH/2}" dominant-baseline="middle" font-size="13" font-weight="800" fill="#221E1F" font-family="'Barlow Condensed',sans-serif">${it.value}</text>
+    `;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${rows}</svg>`;
 }
 
 function buildHorizontalBarSVG(labels, values) {
@@ -2493,7 +3043,10 @@ function startAuditFromTemplate(templateId) {
     editingId = null;
     selectedTemplateId = t.id;
     const todayISO = new Date().toISOString().split('T')[0];
-    modalRows = criteria.map((text, i) => ({ id: i + 1, text, date: formatDateBR(todayISO), ok: false, nc: false }));
+    modalRows = criteria.map((c, i) => {
+      const n = normalizeCriterion(c);
+      return { id: i + 1, text: n.text, senso: n.senso, date: formatDateBR(todayISO), ok: false, nc: false };
+    });
     modalRowId = criteria.length + 1;
     modalPhotos = [];
     modalPhotoId = 1;
