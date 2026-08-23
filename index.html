@@ -311,6 +311,7 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
 .sidebar-user{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .sidebar-logout{width:100%;text-align:left;border:none;background:transparent;color:rgba(255,255,255,.75);font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;padding:8px 0;cursor:pointer;}
 .sidebar-logout:hover{color:white;}
+.mobile-fab{display:none;}
 .main-content{flex:1;min-width:0;}
 
 /* LOGIN SCREEN */
@@ -411,10 +412,27 @@ body{font-family:'Barlow',sans-serif;background:#F0F4F9;color:var(--gray-900);mi
   .nav-tab{padding:6px 10px;font-size:11px;}
   .nav-actions .btn{padding:7px 10px;font-size:12px;flex-shrink:0;}
 
+  .mobile-fab{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;right:18px;bottom:18px;
+    width:58px;height:58px;border-radius:50%;
+    background:var(--blue);color:white;border:none;
+    box-shadow:0 6px 18px rgba(0,0,0,.32);
+    z-index:150;cursor:pointer;
+    transition:transform .12s;
+  }
+  .mobile-fab:active{transform:scale(.92);}
+  .mobile-fab-icon{font-size:30px;font-weight:400;line-height:1;margin-top:-2px;}
+  /* No mobile, a sidebar já tem seu próprio botão "+"; escondemos o duplicado nela
+     para não repetir a mesma ação duas vezes na tela. */
+  .sidebar-actions{display:none;}
+  /* Evita que o toast de confirmação apareça sobreposto ao botão flutuante */
+  .toast{bottom:90px;right:16px;left:16px;text-align:center;}
+
   .dash-header,.detail-header{padding:18px 16px;}
   .dash-header h1,.detail-header h1{font-size:22px;}
   .dash-header p,.detail-header .meta{font-size:12px;}
-  .dash-main,.detail-main{padding:16px 12px 32px;}
+  .dash-main,.detail-main{padding:16px 12px 96px;}
   .detail-header{flex-wrap:wrap;gap:12px;}
   .detail-header > div:last-child{width:100%;}
   .detail-header .btn{flex:1;justify-content:center;padding:8px 10px;font-size:11px;}
@@ -561,6 +579,12 @@ body.printing-form .topnav{display:none!important;}
     <button class="sidebar-logout" onclick="doLogout()">🚪 Sair</button>
   </div>
 </aside>
+
+<!-- BOTÃO FLUTUANTE (mobile): atalho rápido para iniciar uma auditoria -->
+<button class="mobile-fab no-print" id="mobileFab" onclick="openNewAudit()" title="Nova Auditoria" aria-label="Nova Auditoria">
+  <span class="mobile-fab-icon">+</span>
+</button>
+
 <div class="main-content" id="mainContent">
 
 <!-- DASHBOARD VIEW -->
