@@ -500,7 +500,74 @@ body.printing-form .topnav{display:none!important;}
 @media print{
   body.printing-form #view-detail{display:none!important;}
   body.printing-form #printFormArea{display:block!important;}
+  /* evita página em branco: o shell do app tem min-height:100vh */
+  body.printing-form #appShell,
+  body.printing-form #loginScreen,
+  body.printing-form .mobile-fab{display:none!important;}
+  body.printing-form{background:#fff!important;}
 }
+
+/* ===== RELATÓRIO DE AUDITORIA 5S (impressão) ===== */
+.pa{font-family:'Barlow',sans-serif;color:#221E1F;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.pa *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.pa-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:10px;border-bottom:3px solid #0B3A57;}
+.pa-head img{height:44px;width:auto;display:block;}
+.pa-head-title{text-align:right;}
+.pa-head-title h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;line-height:1;text-transform:uppercase;letter-spacing:.5px;color:#0B3A57;}
+.pa-head-title p{font-size:11px;color:#4B5563;margin-top:3px;}
+.pa-accent{height:3px;background:#007EC6;width:90px;margin:3px 0 12px auto;}
+.pa-meta{display:grid;grid-template-columns:1.2fr 1fr 1fr;border:1px solid #D1D5DB;border-radius:6px;margin-bottom:12px;}
+.pa-meta > div{padding:7px 12px;border-left:1px solid #D1D5DB;}
+.pa-meta > div:first-child{border-left:none;}
+.pa-meta small{display:block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;}
+.pa-meta strong{display:block;font-size:13px;font-weight:600;color:#221E1F;margin-top:1px;}
+.pa-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+.pa-kpi{border:1px solid #D1D5DB;border-top:4px solid #007EC6;border-radius:6px;padding:7px 12px 8px;break-inside:avoid;}
+.pa-kpi.ok{border-top-color:#1B7F3A;background:#F3FAF5;}
+.pa-kpi.nc{border-top-color:#D32F2F;background:#FDF3F3;}
+.pa-kpi small{display:block;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;}
+.pa-kpi b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;line-height:1.1;color:#221E1F;}
+.pa-kpi.date b{font-size:20px;line-height:1.4;}
+.pa-kpi.ok b{color:#1B7F3A;}
+.pa-kpi.nc b{color:#D32F2F;}
+.pa-kpi span{display:block;font-size:10px;color:#6B7280;}
+.pa-sec{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:#0B3A57;margin:4px 0 6px;padding-bottom:3px;border-bottom:1px solid #D1D5DB;break-after:avoid;}
+.pa table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+.pa thead{display:table-header-group;}
+.pa th{background:#0B3A57;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:6px 8px;text-align:left;}
+.pa td{border-bottom:1px solid #E5E7EB;padding:5px 8px;font-size:11.5px;line-height:1.35;vertical-align:middle;}
+.pa tr{break-inside:avoid;}
+.pa td.n{width:30px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#007EC6;text-align:center;}
+.pa td.d{width:56px;color:#6B7280;text-align:center;white-space:nowrap;}
+.pa td.s{width:118px;white-space:nowrap;}
+.pa tr.is-nc td{background:#FDF3F3;}
+.pa tr.is-nc td.n{color:#D32F2F;}
+.pa-st{display:inline-block;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;border:1px solid;}
+.pa-st.ok{color:#1B7F3A;border-color:#1B7F3A;background:#E8F5EC;}
+.pa-st.nc{color:#D32F2F;border-color:#D32F2F;background:#FFEBEB;}
+.pa-st.na{color:#6B7280;border-color:#D1D5DB;}
+.pa-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.pa.landscape .pa-photos{grid-template-columns:repeat(4,1fr);}
+.pa-photo{border:1px solid #D1D5DB;border-radius:6px;overflow:hidden;break-inside:avoid;}
+.pa-photo img{width:100%;height:52mm;object-fit:cover;display:block;background:#F3F4F6;}
+.pa.landscape .pa-photo img{height:42mm;}
+.pa-photo div{padding:4px 8px;font-size:10px;font-weight:600;color:#221E1F;border-top:1px solid #E5E7EB;}
+.pa-photo div em{font-style:normal;color:#007EC6;margin-right:4px;}
+.pa-obs{border-left:3px solid #007EC6;background:#F0F7FC;padding:8px 12px;font-size:11.5px;line-height:1.5;margin-bottom:14px;break-inside:avoid;white-space:pre-wrap;}
+.pa-foot{display:flex;justify-content:space-between;font-size:9.5px;color:#6B7280;border-top:1px solid #D1D5DB;padding-top:5px;margin-top:6px;}
+
+/* Janela de opções de impressão */
+.po-orient{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.po-card{border:2px solid var(--gray-200);border-radius:12px;padding:14px 10px 12px;cursor:pointer;background:white;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-600);transition:border-color .15s,background .15s;}
+.po-card:hover{border-color:var(--gray-300);}
+.po-card.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue-dark);}
+.po-sheet{border:2px solid currentColor;border-radius:3px;background:white;display:flex;flex-direction:column;gap:3px;padding:5px;}
+.po-sheet i{display:block;height:3px;background:currentColor;opacity:.35;border-radius:2px;}
+.po-sheet i:first-child{opacity:.8;width:60%;}
+.po-sheet.portrait{width:42px;height:58px;}
+.po-sheet.landscape{width:58px;height:42px;}
+.po-opts label{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--gray-900);cursor:pointer;border-top:1px solid var(--gray-200);}
+.po-opts input{width:17px;height:17px;accent-color:var(--blue);}
 </style>
 </head>
 <body>
@@ -820,7 +887,7 @@ body.printing-form .topnav{display:none!important;}
     <div style="display:flex;gap:10px;" class="no-print">
       <button class="btn btn-ghost" onclick="showView('list')" style="color:white;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);">← Voltar</button>
       <button class="btn btn-success" onclick="editCurrentAudit()">✏ Editar</button>
-      <button class="btn btn-ghost" onclick="window.print()" style="color:white;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);">🖨 Imprimir</button>
+      <button class="btn btn-ghost" onclick="openAuditPrintOptions()" style="color:white;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);">🖨 Imprimir</button>
     </div>
   </div>
   <div class="score-banner" id="detail-banner"><span id="detail-banner-text"></span></div>
@@ -1081,6 +1148,36 @@ body.printing-form .topnav{display:none!important;}
 
 <!-- Hidden area used to build printable blank forms and atas -->
 <div id="printFormArea"></div>
+
+<!-- MODAL: OPÇÕES DE IMPRESSÃO DA AUDITORIA -->
+<div class="modal-overlay" id="auditPrintOverlay">
+  <div class="modal" style="width:min(96vw,440px);">
+    <div class="modal-header">
+      <h2>Imprimir Auditoria</h2>
+      <button class="modal-close" onclick="closeAuditPrintOptions()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-label" style="margin-bottom:8px;">Orientação da página</div>
+      <div class="po-orient">
+        <button type="button" class="po-card" data-orient="portrait" onclick="setAuditPrintOrientation('portrait')">
+          <span class="po-sheet portrait"><i></i><i></i><i></i><i></i></span>Retrato
+        </button>
+        <button type="button" class="po-card" data-orient="landscape" onclick="setAuditPrintOrientation('landscape')">
+          <span class="po-sheet landscape"><i></i><i></i><i></i></span>Paisagem
+        </button>
+      </div>
+      <div class="form-label" style="margin-bottom:2px;">Incluir no relatório</div>
+      <div class="po-opts">
+        <label><input type="checkbox" id="poChecklist" checked> Lista de verificação (critérios)</label>
+        <label><input type="checkbox" id="poPhotos" checked> Fotos da auditoria</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAuditPrintOptions()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmAuditPrint()">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL: NEW / EDIT SECTOR -->
 <div class="modal-overlay" id="sectorModalOverlay">
@@ -1619,6 +1716,167 @@ function printTemplateForm(id) {
   }
 }
 window.addEventListener('afterprint', () => document.body.classList.remove('printing-form'));
+
+// ===================== PRINT: RELATÓRIO DA AUDITORIA 5S =====================
+const AUDIT_PRINT_PREFS_KEY = 'auditorias5s_print_prefs';
+let auditPrintPrefs = (() => {
+  const p = safeLoad(AUDIT_PRINT_PREFS_KEY, null);
+  return {
+    orientation: p && p.orientation === 'landscape' ? 'landscape' : 'portrait',
+    checklist: p ? p.checklist !== false : true,
+    photos: p ? p.photos !== false : true,
+  };
+})();
+
+function paEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function openAuditPrintOptions() {
+  if (!currentDetailId) return;
+  document.getElementById('poChecklist').checked = auditPrintPrefs.checklist;
+  document.getElementById('poPhotos').checked = auditPrintPrefs.photos;
+  setAuditPrintOrientation(auditPrintPrefs.orientation);
+  document.getElementById('auditPrintOverlay').classList.add('open');
+}
+
+function closeAuditPrintOptions() {
+  document.getElementById('auditPrintOverlay').classList.remove('open');
+}
+
+function setAuditPrintOrientation(o) {
+  auditPrintPrefs.orientation = o === 'landscape' ? 'landscape' : 'portrait';
+  document.querySelectorAll('#auditPrintOverlay .po-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.orient === auditPrintPrefs.orientation));
+}
+
+// Define o tamanho/orientação da folha via @page (o navegador já abre a caixa de impressão nessa orientação)
+function applyPrintPageOrientation(orientation) {
+  let el = document.getElementById('printPageStyle');
+  if (!el) {
+    el = document.createElement('style');
+    el.id = 'printPageStyle';
+    document.head.appendChild(el);
+  }
+  el.textContent = `@page { size: A4 ${orientation}; margin: 10mm 12mm; }`;
+}
+function clearPrintPageOrientation() {
+  const el = document.getElementById('printPageStyle');
+  if (el) el.remove();
+}
+window.addEventListener('afterprint', clearPrintPageOrientation);
+
+function buildAuditPrintHtml(a, prefs) {
+  const d = new Date(a.date + 'T12:00');
+  const dateBR = isNaN(d) ? (a.date || '—') : d.toLocaleDateString('pt-BR');
+  const rows = Array.isArray(a.rows) ? a.rows : [];
+  const tot = rows.length;
+  const ok = rows.filter(r => r.ok).length;
+  const nc = rows.filter(r => r.nc).length;
+  const pct = tot ? Math.round(ok / tot * 100) : 0;
+
+  const checklistHtml = prefs.checklist && tot ? `
+    <div class="pa-sec">Lista de Verificação</div>
+    <table>
+      <thead><tr><th style="text-align:center;">#</th><th>Critério</th><th style="text-align:center;">Data</th><th>Status</th></tr></thead>
+      <tbody>${rows.map((r, i) => {
+        const st = r.nc ? '<span class="pa-st nc">✘ Não conforme</span>'
+                 : r.ok ? '<span class="pa-st ok">✔ Conforme</span>'
+                 : '<span class="pa-st na">— Não avaliado</span>';
+        return `<tr class="${r.nc ? 'is-nc' : ''}">
+          <td class="n">${String(i + 1).padStart(2, '0')}</td>
+          <td>${paEsc(r.text)}</td>
+          <td class="d">${paEsc(r.date || '')}</td>
+          <td class="s">${st}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>` : '';
+
+  const photos = Array.isArray(a.photos) ? a.photos.filter(p => p && p.src) : [];
+  const photosHtml = prefs.photos && photos.length ? `
+    <div class="pa-sec">Fotos da Auditoria (${photos.length})</div>
+    <div class="pa-photos">${photos.map(p => {
+      const idx = p.rowId != null ? rows.findIndex(r => r.id === p.rowId) : -1;
+      const item = idx >= 0 ? `<em>Item ${String(idx + 1).padStart(2, '0')}</em>` : '';
+      const caption = item || p.label ? `<div>${item}${paEsc(p.label || '')}</div>` : '';
+      return `<div class="pa-photo"><img src="${paEsc(p.src)}" alt="${paEsc(p.label || 'Foto da auditoria')}">${caption}</div>`;
+    }).join('')}</div>` : '';
+
+  const now = new Date();
+  return `
+    <div class="pa ${prefs.orientation}">
+      <div class="pa-head">
+        <img src="${PRINT_LOGO_DATA_URI}" alt="Eleve Telhas e Perfis Metálicos">
+        <div class="pa-head-title">
+          <h1>Auditoria dos 5S</h1>
+          <p>Eleve Telhas e Perfis Metálicos</p>
+        </div>
+      </div>
+      <div class="pa-accent"></div>
+      <div class="pa-meta">
+        <div><small>Setor / Departamento</small><strong>${paEsc(a.sector || '—')}</strong></div>
+        <div><small>Auditor responsável</small><strong>${paEsc(a.auditor || '—')}</strong></div>
+        <div><small>Documento</small><strong>${paEsc(a.templateName || '5S - Padrão')}</strong></div>
+      </div>
+      <div class="pa-kpis">
+        <div class="pa-kpi date"><small>Data</small><b>${dateBR}</b></div>
+        <div class="pa-kpi"><small>Total de itens</small><b>${tot}</b></div>
+        <div class="pa-kpi ok"><small>Conformes</small><b>${ok}</b><span>${pct}% de conformidade</span></div>
+        <div class="pa-kpi nc"><small>Não conformes</small><b>${nc}</b></div>
+      </div>
+      ${checklistHtml}
+      ${photosHtml}
+      ${a.obs ? `<div class="pa-sec">Observação Geral</div><div class="pa-obs">${paEsc(a.obs)}</div>` : ''}
+      <div class="pa-foot">
+        <span>Sistema 5S — Eleve Telhas e Perfis Metálicos</span>
+        <span>Emitido em ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+    </div>`;
+}
+
+function prepareAuditPrint(prefs) {
+  const a = DB.find(x => x.id === currentDetailId);
+  if (!a) return false;
+  document.getElementById('printFormArea').innerHTML = buildAuditPrintHtml(a, prefs);
+  applyPrintPageOrientation(prefs.orientation);
+  document.body.classList.add('printing-form');
+  return true;
+}
+
+// Espera as fotos carregarem (máx. 5 s) para não sair com espaços vazios na impressão
+function waitForImages(container, timeoutMs = 5000) {
+  const imgs = Array.from(container.querySelectorAll('img')).filter(img => !img.complete);
+  if (!imgs.length) return Promise.resolve();
+  const loads = imgs.map(img => new Promise(res => { img.onload = img.onerror = res; }));
+  return Promise.race([Promise.all(loads), new Promise(res => setTimeout(res, timeoutMs))]);
+}
+
+async function confirmAuditPrint() {
+  try {
+    auditPrintPrefs.checklist = document.getElementById('poChecklist').checked;
+    auditPrintPrefs.photos = document.getElementById('poPhotos').checked;
+    try { localStorage.setItem(AUDIT_PRINT_PREFS_KEY, JSON.stringify(auditPrintPrefs)); } catch (e) {}
+    closeAuditPrintOptions();
+    if (!prepareAuditPrint(auditPrintPrefs)) { showToast('⚠️ Auditoria não encontrada.'); return; }
+    await waitForImages(document.getElementById('printFormArea'));
+    // pequeno atraso para a janela de opções terminar de fechar
+    setTimeout(() => window.print(), 250);
+  } catch (err) {
+    console.error('Erro ao imprimir auditoria:', err);
+    document.body.classList.remove('printing-form');
+    showToast('❌ Não foi possível gerar a impressão.');
+  }
+}
+
+// Ctrl+P na tela de detalhe também usa o layout de relatório (com a última orientação escolhida)
+window.addEventListener('beforeprint', () => {
+  if (document.body.classList.contains('printing-form')) return;
+  const detail = document.getElementById('view-detail');
+  if (detail && detail.classList.contains('active') && currentDetailId) {
+    prepareAuditPrint(auditPrintPrefs);
+  }
+});
 
 // ===================== MEETINGS (Agenda / Calendário) =====================
 const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
